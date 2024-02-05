@@ -1,0 +1,61 @@
+MPLINK 4.41, Linker
+Linker Map File - Created Sun Feb 04 20:38:14 2024
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000004
+                   .cinit    romdata   0x000002    program   0x000004
+                   .org_1       code   0x000004    program   0x000176
+    .config_2007_MASTER.O       code   0x002007    program   0x000002
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x0000be      
+                            0x002007    0x002007      
+            192 out of 8454 program addresses used, program memory utilization is 2%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                     inid   0x000033    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     init   0x00004e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                     loop   0x00007f    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                    loop1   0x000007    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loopX   0x00000c    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loopx   0x00001a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    onems   0x000005    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                onesecond   0x000010    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+             printWelcome   0x000080    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                   pulseE   0x00001e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     send   0x000023    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    start   0x00005e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                      xms   0x00000b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                 xseconds   0x000019    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                    onems   0x000005    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loop1   0x000007    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                      xms   0x00000b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loopX   0x00000c    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                onesecond   0x000010    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                 xseconds   0x000019    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loopx   0x00001a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                   pulseE   0x00001e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     send   0x000023    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     inid   0x000033    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     init   0x00004e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                    start   0x00005e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                     loop   0x00007f    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             printWelcome   0x000080    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+
+
