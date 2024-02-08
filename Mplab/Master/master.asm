@@ -57,6 +57,13 @@
     GOTO    timerInterrupt   ; Jump to Timer0 interrupt
 
 buttonInterrupt:
+    ; check if the state is 16 (the button is pressed after the result is displayed, so we need to reset the system)
+    BANKSEL state
+    BTFSC   state, 4
+    GOTO    resetSystem
+
+
+
     CALL incrementCurrentDigit  ; increment the current digit
     
     BANKSEL current_digit
@@ -105,6 +112,7 @@ timerInterrupt:
     BTFSC   state, 3          ; check if the state is 8(second digit of the second number)
     GOTO    saveNum2Unit
 
+;--------------------------------------------------------------------------------------------
 
 ; save the current digit in num1_tens
 saveNum1Tens:
@@ -165,13 +173,23 @@ saveNum2Unit:
     MOVLW	'='
     CALL	send
 
-    ; increment the cursor position
-    INCF    position, F     ; increment the cursor position to move the cursor to the next digit
+    CALL    printResult ; print "Result" on the LCD on the first line
 
     ; hide the cursor
+    BCF     Select,RS	; Select command mode
     MOVLW	0x0C
     CALL	send
+
+    ; disable the Timer0 interrupt
+    BANKSEL INTCON
+    BCF     INTCON, TMR0IE  ; Disable Timer0 interrupt
+
+    BANKSEL TMR0        
+	CLRF    TMR0           ; Clear Timer0
+
     RETFIE
+
+;--------------------------------------------------------------------------------------------
 
 resetCurrentDigit:
     BANKSEL PORTD		; Select bank 0
@@ -197,7 +215,7 @@ skip:
     RETFIE              ; Return from interrupt
 
 
-    
+
 
 
 INCLUDE "LCDIS.INC"	; Include the LCD driver file
@@ -248,6 +266,25 @@ loop
 
 
 ; Subroutines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Reset the system
+resetSystem:
+    BANKSEL PORTD		; Select bank 0
+    BCF    Select,RS	; Select command mode
+    MOVLW    0x01	    ; clear display
+    CALL    send	    ; and send code
+    MOVLW	0x80	    ; position to home cursor
+    CALL	send	    ; and send code
+
+    CALL    printNumber1 ; print "Number 1" on the LCD
+
+    ; initialize the interrupts
+    CALL    initInterrupts
+    CALL    resetTimer0
+
+    RETURN
+
+    
 
 ; Clear the display and return the cursor to the home position
 clearDisplay:
@@ -346,6 +383,35 @@ printNumber2:
     BCF     Select,RS	; Select command mode
     MOVF    position, W ; move the cursor to previous position
     CALL    send
+
+    RETURN
+
+; Write "Result" in the first line
+printResult:
+    BANKSEL PORTD		; Select bank 0
+    BCF    Select,RS	; Select command mode
+    MOVLW	0x80        ;position the cursor to the first position in the first line
+    CALL	send	    ; and send code
+
+    BSF    Select,RS	; Select data mode
+    MOVLW	'R'
+    CALL	send
+    MOVLW	'e'
+    CALL	send
+    MOVLW	's'
+    CALL	send
+    MOVLW	'u'
+    CALL	send
+    MOVLW	'l'
+    CALL	send
+    MOVLW	't'
+    CALL	send
+    MOVLW    ' '
+    CALL    send
+    MOVLW    ' '
+    CALL    send
+
+    
 
     RETURN
 

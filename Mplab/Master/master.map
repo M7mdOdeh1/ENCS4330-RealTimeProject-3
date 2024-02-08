@@ -1,12 +1,12 @@
 MPLINK 4.41, Linker
-Linker Map File - Created Fri Feb 09 00:01:53 2024
+Linker Map File - Created Fri Feb 09 01:05:55 2024
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000004
                    .cinit    romdata   0x000002    program   0x000004
-                   .org_1       code   0x000004    program   0x0002a0
+                   .org_1       code   0x000004    program   0x0002fa
     .config_2007_MASTER.O       code   0x002007    program   0x000002
 
 
@@ -14,9 +14,9 @@ Linker Map File - Created Fri Feb 09 00:01:53 2024
                               Program Memory Usage 
                                Start         End      
                            ---------   ---------      
-                            0x000000    0x000153      
+                            0x000000    0x000180      
                             0x002007    0x002007      
-            341 out of 8454 program addresses used, program memory utilization is 4%
+            386 out of 8454 program addresses used, program memory utilization is 4%
 
 
 
@@ -24,33 +24,35 @@ Linker Map File - Created Fri Feb 09 00:01:53 2024
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
           buttonInterrupt   0x000008    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             clearDisplay   0x0000c5    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-    incrementCurrentDigit   0x00014c    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                     inid   0x000093    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                     init   0x0000ae    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-           initInterrupts   0x0000cd    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                     loop   0x0000c4    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                    loop1   0x000069    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                    loopX   0x00006e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                    loopx   0x00007c    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                    onems   0x000067    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                onesecond   0x000072    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-             printNumber1   0x0000dd    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             printNumber2   0x000101    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             printWelcome   0x00010d    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                   pulseE   0x000080    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-        resetCurrentDigit   0x000055    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-              resetTimer0   0x0000d7    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             saveNum1Tens   0x00002a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             saveNum1Unit   0x000031    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             saveNum2Tens   0x00003f    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             saveNum2Unit   0x000046    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                     send   0x000085    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                     skip   0x00005f    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                    start   0x0000ba    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-           timerInterrupt   0x000016    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                      xms   0x00006d    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                 xseconds   0x00007b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+             clearDisplay   0x0000db    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+    incrementCurrentDigit   0x000179    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                     inid   0x00009e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     init   0x0000b9    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+           initInterrupts   0x0000e3    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                     loop   0x0000cf    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                    loop1   0x000074    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loopX   0x000079    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loopx   0x000087    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    onems   0x000072    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                onesecond   0x00007d    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+             printNumber1   0x0000f3    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             printNumber2   0x000117    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+              printResult   0x000123    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             printWelcome   0x00013a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                   pulseE   0x00008b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+        resetCurrentDigit   0x000060    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+              resetSystem   0x0000d0    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+              resetTimer0   0x0000ed    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             saveNum1Tens   0x00002e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             saveNum1Unit   0x000035    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             saveNum2Tens   0x000043    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             saveNum2Unit   0x00004a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                     send   0x000090    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     skip   0x00006a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                    start   0x0000c5    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+           timerInterrupt   0x00001a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                      xms   0x000078    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                 xseconds   0x000086    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
 
 
 
@@ -58,32 +60,34 @@ Linker Map File - Created Fri Feb 09 00:01:53 2024
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
           buttonInterrupt   0x000008    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-           timerInterrupt   0x000016    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             saveNum1Tens   0x00002a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             saveNum1Unit   0x000031    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             saveNum2Tens   0x00003f    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             saveNum2Unit   0x000046    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-        resetCurrentDigit   0x000055    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                     skip   0x00005f    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                    onems   0x000067    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                    loop1   0x000069    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                      xms   0x00006d    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                    loopX   0x00006e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                onesecond   0x000072    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                 xseconds   0x00007b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                    loopx   0x00007c    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                   pulseE   0x000080    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                     send   0x000085    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                     inid   0x000093    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
-                     init   0x0000ae    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                    start   0x0000ba    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-                     loop   0x0000c4    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             clearDisplay   0x0000c5    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-           initInterrupts   0x0000cd    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-              resetTimer0   0x0000d7    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             printNumber1   0x0000dd    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             printNumber2   0x000101    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-             printWelcome   0x00010d    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
-    incrementCurrentDigit   0x00014c    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+           timerInterrupt   0x00001a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             saveNum1Tens   0x00002e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             saveNum1Unit   0x000035    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             saveNum2Tens   0x000043    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             saveNum2Unit   0x00004a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+        resetCurrentDigit   0x000060    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                     skip   0x00006a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                    onems   0x000072    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loop1   0x000074    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                      xms   0x000078    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loopX   0x000079    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                onesecond   0x00007d    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                 xseconds   0x000086    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                    loopx   0x000087    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                   pulseE   0x00008b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     send   0x000090    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     inid   0x00009e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\LCDIS.INC
+                     init   0x0000b9    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                    start   0x0000c5    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+                     loop   0x0000cf    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+              resetSystem   0x0000d0    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             clearDisplay   0x0000db    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+           initInterrupts   0x0000e3    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+              resetTimer0   0x0000ed    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             printNumber1   0x0000f3    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             printNumber2   0x000117    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+              printResult   0x000123    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+             printWelcome   0x00013a    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
+    incrementCurrentDigit   0x000179    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Master\master.asm
 
 
