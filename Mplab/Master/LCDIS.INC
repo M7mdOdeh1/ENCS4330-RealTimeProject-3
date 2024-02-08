@@ -82,7 +82,7 @@ send	MOVWF	OutCod		; Store output code
 	BTFSC	Select,RS	; Test RS bit
 	BSF	PORTD,RS	; and set for data
 	CALL	pulseE		; and clock display register
-	CALL	onems		; wait 1ms for display
+	;CALL	onems		; wait 1ms for display
 
 	SWAPF	OutCod		; Swap low and high nybbles 
 	MOVF	OutCod,W	; Retrieve output code
@@ -91,7 +91,7 @@ send	MOVWF	OutCod		; Store output code
 	BTFSC	Select,RS	; Test RS bit
 	BSF	PORTD,RS	; and set for data
 	CALL	pulseE		; and clock display register
-	CALL	onems		; wait 1ms for display
+	;CALL	onems		; wait 1ms for display
 	RETURN			; done
 
 ;--------------------------------------------------------------
