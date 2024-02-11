@@ -26,7 +26,6 @@
 
     INCLUDE "P16F877A.INC"	; Include the 16F877 header file
     
-
 	__CONFIG 0x3731	; 00011011100110001
 
     
@@ -41,7 +40,20 @@
     timerCounter    EQU 36     ; Custom timer counter for 2-second detection
     position        EQU 37         ; Cursor position for the digit to be displayed
     state           EQU 38            ; State of input(1: first digit, 2: second digit, 4: third digit, 8: fourth digit, 16: finished)
-    
+    temp1           EQU 39            ; Temp variable to save the result of the multiplication from master CPU
+    temp2           EQU 40            ; Temp variable to save the result of the multiplication from master CPU
+    temp3           EQU 41            ; Temp variable to save the result of the multiplication from master CPU
+    tempAux2        EQU 42            ; temp variable to save the result of the multiplication from the auxiliary CPU
+    tempAux3        EQU 43            ; temp variable to save the result of the multiplication from the auxiliary CPU
+    res_unit        EQU 42            ; Unit digit of the result
+    res_tens        EQU 43            ; Tens digit of the result
+    res_hundreds    EQU 44            ; Hundreds digit of the result
+    res_thousands   EQU 45            ; Thousands digit of the result
+    x          EQU 46            ; Temp to put the first digit of multiplication operation
+    y          EQU 47            ; Temp to put the second digit of multiplication operation
+    res_mult        EQU 48            ; 2 bytes to save the result of the multiplication
+
+
 ; Program Begins ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     ORG	0x00    ; Default start address 
@@ -186,6 +198,10 @@ saveNum2Unit:
 
     BANKSEL TMR0        
 	CLRF    TMR0           ; Clear Timer0
+
+    ; calculate the multiplication of the first number by the tenth digit of the second number
+    GOTO    calculateSecondMultiplication
+backFromMult:
 
     RETFIE
 
@@ -411,6 +427,11 @@ printResult:
     MOVLW    ' '
     CALL    send
 
+    ; return the cursor back to the second line to print the result
+    BCF     Select,RS	; Select command mode
+    MOVLW	0xC6        ;position the cursor to the 7th position in the second line
+    CALL	send	    ; and send code
+
     
 
     RETURN
@@ -505,10 +526,114 @@ incrementCurrentDigit:
     RETURN
 
 
+; Calculate the multiplication of the first number by the tenth digit of the second number
+calculateSecondMultiplication:
+    ; find the multiplication of the unit digit of the first number by the tens digit of the second number
+    BANKSEL num1_unit
+    MOVF    num1_unit, W
+    MOVWF   x
+    MOVF    num2_tens, W
+    MOVWF   y
+    CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
+
+    ; save the result in temp1 and temp2
+    BANKSEL temp1
+    MOVF    res_mult, W
+    MOVWF   temp1
+    MOVF    res_mult+1, W
+    MOVWF   temp2
+
+    ; find the multiplication of the tens digit of the first number by the tens digit of the second number
+    MOVF    num1_tens, W
+    MOVWF   x
+    MOVF    num2_tens, W
+    MOVWF   y
+    CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
+
+    ; save the result in temp2 and temp3
+    MOVF    res_mult, W
+    ADDWF   temp2, F
+    BTFSC   STATUS, C
+    INCF    temp3, F
+    MOVF    res_mult+1, W
+    ADDWF   temp3, F
 
 
+    ; find the multiplication of the unit digit of the first number by the unit digit of the second number
+    MOVF    num1_unit, W
+    MOVWF   x
+    MOVF    num2_unit, W
+    MOVWF   y
+    CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
+
+    ; save res_mult in res_unit and res_mult+1 in tempAux2
+    MOVF    res_mult, W
+    MOVWF   res_unit
+    MOVF    res_mult+1, W
+    MOVWF   tempAux2
+    
+
+
+    
+
+    ; print the result on the LCD
+    BANKSEL PORTD		; Select bank 0
+    BSF    Select,RS	; Select data mode
+    MOVF   temp3, W
+    ADDLW  0x30
+    CALL   send
+    MOVF   temp2, W
+    ADDLW  0x30
+    CALL   send
+    MOVF   temp1, W
+    ADDLW  0x30
+    CALL   send
+
+    GOTO    backFromMult
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
   
+; multiply value of x and y and store the result in res_mult
+multiplication:
+    BANKSEL PORTA
+    CLRF    res_mult
+    CLRF    res_mult+1
+
+  
+
+    MOVF    y, W
+    BTFSC   STATUS, Z   
+    GOTO    mult_end    ; If y is zero, return
+    MOVF    x, W        
+
+mult_loop:
+    ADDWF   res_mult, F     ; Add x to the result
+    BTFSC   STATUS, C      ; if there an overflow in the addition
+    INCF    res_mult+1     ; increment the high byte of the result
+    DECFSZ  y, F            ; decrement y
+    GOTO    mult_loop       ; repeat the loop
+
+
+mult_end:
+    
+
+    RETURN
+   
+
 END
 
 
