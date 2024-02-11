@@ -40,18 +40,13 @@
     timerCounter    EQU 36     ; Custom timer counter for 2-second detection
     position        EQU 37         ; Cursor position for the digit to be displayed
     state           EQU 38            ; State of input(1: first digit, 2: second digit, 4: third digit, 8: fourth digit, 16: finished)
-    temp1           EQU 39            ; Temp variable to save the result of the multiplication from master CPU
-    temp2           EQU 40            ; Temp variable to save the result of the multiplication from master CPU
-    temp3           EQU 41            ; Temp variable to save the result of the multiplication from master CPU
-    tempAux2        EQU 42            ; temp variable to save the result of the multiplication from the auxiliary CPU
-    tempAux3        EQU 43            ; temp variable to save the result of the multiplication from the auxiliary CPU
-    res_unit        EQU 42            ; Unit digit of the result
-    res_tens        EQU 43            ; Tens digit of the result
-    res_hundreds    EQU 44            ; Hundreds digit of the result
-    res_thousands   EQU 45            ; Thousands digit of the result
-    x          EQU 46            ; Temp to put the first digit of multiplication operation
-    y          EQU 47            ; Temp to put the second digit of multiplication operation
-    res_mult        EQU 48            ; 2 bytes to save the result of the multiplication
+    res_unit        EQU 41            ; Unit digit of the result
+    res_tens        EQU 42            ; Tens digit of the result
+    res_hundreds    EQU 43            ; Hundreds digit of the result
+    res_thousands   EQU 44            ; Thousands digit of the result
+    x               EQU 45            ; Temp to put the first digit of multiplication operation
+    y               EQU 46            ; Temp to put the second digit of multiplication operation
+    res_mult        EQU 47            ; 2 bytes to save the result of the multiplication
 
 
 ; Program Begins ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -528,7 +523,14 @@ incrementCurrentDigit:
 
 ; Calculate the multiplication of the first number by the tenth digit of the second number
 calculateSecondMultiplication:
-    ; find the multiplication of the unit digit of the first number by the tens digit of the second number
+    BANKSEL PORTA
+    CLRF    res_unit
+    CLRF    res_tens
+    CLRF    res_hundreds
+    CLRF    res_thousands
+
+
+    ; find the multiplication of num1_unit by num2_tens
     BANKSEL num1_unit
     MOVF    num1_unit, W
     MOVWF   x
@@ -536,71 +538,94 @@ calculateSecondMultiplication:
     MOVWF   y
     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
 
-    ; save the result in temp1 and temp2
-    BANKSEL temp1
+    ; add res_mult to res_tens
     MOVF    res_mult, W
-    MOVWF   temp1
-    MOVF    res_mult+1, W
-    MOVWF   temp2
+    ADDWF   res_tens, F
+    BTFSC   STATUS, C
+    INCF    res_hundreds, F
 
-    ; find the multiplication of the tens digit of the first number by the tens digit of the second number
+    ; add res_mult+1 to res_hundreds
+    MOVF    res_mult+1, W
+    ADDWF   res_hundreds, F
+    BTFSC   STATUS, C
+    INCF    res_hundreds+1, F
+
+
+    ; find the multiplication of num1_tens by num2_unit
     MOVF    num1_tens, W
     MOVWF   x
     MOVF    num2_tens, W
     MOVWF   y
     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
 
-    ; save the result in temp2 and temp3
+    ; add res_mult to res_hundreds and res_mult+1 to res_thousands
+    BANKSEL res_mult
     MOVF    res_mult, W
-    ADDWF   temp2, F
+    ADDWF   res_hundreds, F
     BTFSC   STATUS, C
-    INCF    temp3, F
+    INCF    res_hundreds+1, F
+
+    ; add res_mult+1 to res_thousands
     MOVF    res_mult+1, W
-    ADDWF   temp3, F
-
-
-    ; find the multiplication of the unit digit of the first number by the unit digit of the second number
+    ADDWF   res_thousands, F
+    BTFSC   STATUS, C
+    
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; auxiliary part
+    ; find the multiplication of num1_unit by num2_unit
+    BANKSEL res_unit
     MOVF    num1_unit, W
     MOVWF   x
     MOVF    num2_unit, W
     MOVWF   y
     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
 
-    ; save res_mult in res_unit and res_mult+1 in tempAux2
+
+    ; save res_mult in res_unit and add res_mult+1 to res_tens
+    BANKSEL res_unit
     MOVF    res_mult, W
-    MOVWF   res_unit
+    ADDWF   res_unit, F
+    BTFSC   STATUS, C
+    INCF    res_tens, F
+
     MOVF    res_mult+1, W
-    MOVWF   tempAux2
-    
+    ADDWF   res_tens, F
+    BTFSC   STATUS, C
+    INCF    res_hundreds, F
 
 
-    
+    ; find the multiplication of num1_tens by num2_unit
+    MOVF    num1_tens, W
+    MOVWF   x
+    MOVF    num2_unit, W
+    MOVWF   y
+    CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
 
+    ; add res_mult to res_tens and res_mult+1 to res_hundreds
+    MOVF    res_mult, W
+    ADDWF   res_tens, F
+    BTFSC   STATUS, C
+    INCF    res_hundreds, F
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; print the result on the LCD
     BANKSEL PORTD		; Select bank 0
     BSF    Select,RS	; Select data mode
-    MOVF   temp3, W
+    MOVF   res_thousands, W
     ADDLW  0x30
     CALL   send
-    MOVF   temp2, W
+    MOVF   res_hundreds, W
     ADDLW  0x30
     CALL   send
-    MOVF   temp1, W
+    MOVF   res_tens, W
     ADDLW  0x30
     CALL   send
+    MOVF   res_unit, W
+    ADDLW  0x30
+    CALL   send
+
 
     GOTO    backFromMult
-    
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -613,7 +638,8 @@ multiplication:
     CLRF    res_mult
     CLRF    res_mult+1
 
-  
+    CLRF    STATUS
+
 
     MOVF    y, W
     BTFSC   STATUS, Z   
