@@ -426,10 +426,9 @@ printResult:
     BCF     Select,RS	; Select command mode
     MOVLW	0xC6        ;position the cursor to the 7th position in the second line
     CALL	send	    ; and send code
-
     
-
     RETURN
+
 
 ; print welcome message on the LCD
 printWelcome:
@@ -524,6 +523,7 @@ incrementCurrentDigit:
 ; Calculate the multiplication of the first number by the tenth digit of the second number
 calculateSecondMultiplication:
     BANKSEL PORTA
+    ; clear output result's file registers
     CLRF    res_unit
     CLRF    res_tens
     CLRF    res_hundreds
@@ -538,18 +538,24 @@ calculateSecondMultiplication:
     MOVWF   y
     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
 
+    BANKSEL res_mult
     ; add res_mult to res_tens
     MOVF    res_mult, W
     ADDWF   res_tens, F
-    BTFSC   STATUS, C
-    INCF    res_hundreds, F
+    ; check if the number is largaer than 9
+    MOVF    res_tens, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    CALL    handle_carry_tens
 
     ; add res_mult+1 to res_hundreds
     MOVF    res_mult+1, W
     ADDWF   res_hundreds, F
-    BTFSC   STATUS, C
-    INCF    res_hundreds+1, F
-
+    ; check if the number is largaer than 9
+    MOVF    res_hundreds, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    CALL    handle_carry_hundreds
 
     ; find the multiplication of num1_tens by num2_unit
     MOVF    num1_tens, W
@@ -558,57 +564,76 @@ calculateSecondMultiplication:
     MOVWF   y
     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
 
-    ; add res_mult to res_hundreds and res_mult+1 to res_thousands
+    ; add res_mult[0] to res_hundreds 
     BANKSEL res_mult
     MOVF    res_mult, W
     ADDWF   res_hundreds, F
-    BTFSC   STATUS, C
-    INCF    res_hundreds+1, F
+    ; check if the number is largaer than 9
+    MOVF    res_hundreds, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    CALL    handle_carry_hundreds
 
-    ; add res_mult+1 to res_thousands
+
+    ; add res_mult[1] to res_thousands
     MOVF    res_mult+1, W
     ADDWF   res_thousands, F
-    BTFSC   STATUS, C
     
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; auxiliary part
     ; find the multiplication of num1_unit by num2_unit
-    BANKSEL res_unit
+    BANKSEL num1_unit
     MOVF    num1_unit, W
     MOVWF   x
     MOVF    num2_unit, W
     MOVWF   y
     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
 
-
-    ; save res_mult in res_unit and add res_mult+1 to res_tens
+    ; save res_mult[0] in res_unit 
     BANKSEL res_unit
     MOVF    res_mult, W
     ADDWF   res_unit, F
-    BTFSC   STATUS, C
-    INCF    res_tens, F
 
+    ; add res_mult[1] to res_tens
     MOVF    res_mult+1, W
     ADDWF   res_tens, F
-    BTFSC   STATUS, C
-    INCF    res_hundreds, F
-
+    ; check if the number is largaer than 9
+    MOVF    res_tens, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    CALL    handle_carry_tens
 
     ; find the multiplication of num1_tens by num2_unit
+    BANKSEL num1_tens
     MOVF    num1_tens, W
     MOVWF   x
     MOVF    num2_unit, W
     MOVWF   y
     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
 
-    ; add res_mult to res_tens and res_mult+1 to res_hundreds
+    BANKSEL res_mult
+    ; add res_mult[0] to res_tens 
     MOVF    res_mult, W
     ADDWF   res_tens, F
-    BTFSC   STATUS, C
-    INCF    res_hundreds, F
+    ; check if the number is largaer than 9
+    MOVF    res_tens, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    CALL    handle_carry_tens
+
+    ; add res_mult[1] to res_hundreds
+    MOVF    res_mult+1, W
+    ADDWF   res_hundreds, F
+
+    ; check if the number is largaer than 9
+    MOVF    res_hundreds, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    CALL    handle_carry_hundreds
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ; print the result on the LCD
+    ;print the result on the LCD
     BANKSEL PORTD		; Select bank 0
     BSF    Select,RS	; Select data mode
     MOVF   res_thousands, W
@@ -627,36 +652,58 @@ calculateSecondMultiplication:
 
     GOTO    backFromMult
 
-
-
     
+; handle the carry if res_tens is larger than 9
+handle_carry_tens:
+    MOVLW   0x0A            
+    SUBWF   res_tens, F         ; subtract 10 from res_tens
+    INCF    res_hundreds, F     ; increment res_hundreds
+    RETURN  
 
-  
+; handle the carry if res_hundreds is larger than 9
+handle_carry_hundreds:
+    MOVLW   0x0A
+    SUBWF   res_hundreds, F     ; subtract 10 from res_hundreds
+    INCFSZ  res_thousands, F    ; increment res_thousands
+    RETURN
+
+
+
 ; multiply value of x and y and store the result in res_mult
 multiplication:
-    BANKSEL PORTA
+    BANKSEL res_mult
     CLRF    res_mult
     CLRF    res_mult+1
-
-    CLRF    STATUS
-
 
     MOVF    y, W
     BTFSC   STATUS, Z   
     GOTO    mult_end    ; If y is zero, return
-    MOVF    x, W        
+         
 
 mult_loop:
+    MOVF    x, W       
     ADDWF   res_mult, F     ; Add x to the result
-    BTFSC   STATUS, C      ; if there an overflow in the addition
-    INCF    res_mult+1     ; increment the high byte of the result
+    
+    ; check if the number is largaer than 9
+    MOVF   res_mult, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    GOTO    fix_overflow
     DECFSZ  y, F            ; decrement y
     GOTO    mult_loop       ; repeat the loop
+    GOTO    mult_end
 
+fix_overflow:
+    BANKSEL res_mult
+    ; if the number is larger than 9, subtract 10 from it and increment the next byte 
+    MOVLW   0x0A                       
+    SUBWF   res_mult, F
+    INCF    res_mult+1, F
+    DECFSZ  y, F            ; decrement y
+    GOTO    mult_loop       ; repeat the loop    
+    GOTO    mult_end 
 
 mult_end:
-    
-
     RETURN
    
 
