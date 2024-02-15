@@ -1,12 +1,12 @@
 MPLINK 4.41, Linker
-Linker Map File - Created Thu Feb 15 14:11:53 2024
+Linker Map File - Created Thu Feb 15 14:28:38 2024
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000004
                    .cinit    romdata   0x000002    program   0x000004
-                   .org_1       code   0x000004    program   0x0001d2
+                   .org_1       code   0x000004    program   0x0001a8
  .config_2007_AUXILIARY.O       code   0x002007    program   0x000002
 
 
@@ -14,9 +14,9 @@ Linker Map File - Created Thu Feb 15 14:11:53 2024
                               Program Memory Usage 
                                Start         End      
                            ---------   ---------      
-                            0x000000    0x0000ec      
+                            0x000000    0x0000d7      
                             0x002007    0x002007      
-            238 out of 8454 program addresses used, program memory utilization is 2%
+            217 out of 8454 program addresses used, program memory utilization is 2%
 
 
 
@@ -24,26 +24,25 @@ Linker Map File - Created Thu Feb 15 14:11:53 2024
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
                       ISR   0x000006    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-            ReceiveNumber   0x000074    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-         backFromMultiply   0x00008b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-      firstMultiplication   0x0000ac    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-             fix_overflow   0x0000e4    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-        handle_carry_tens   0x0000ce    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+            ReceiveNumber   0x000066    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+         backFromMultiply   0x000076    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+      firstMultiplication   0x000097    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+             fix_overflow   0x0000cf    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+        handle_carry_tens   0x0000b9    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
                      inid   0x000035    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
-                     init   0x000050    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
                     loop1   0x00000b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
-                   loop11   0x00006c    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+                   loop11   0x00005e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
                     loopX   0x000010    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
                     loopx   0x00001e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
-                 mult_end   0x0000ec    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-                mult_loop   0x0000db    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-           multiplication   0x0000d4    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+                 mult_end   0x0000d7    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+                mult_loop   0x0000c6    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+           multiplication   0x0000bf    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
                     onems   0x000009    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
                 onesecond   0x000014    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
                    pulseE   0x000022    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
                      send   0x000027    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
-               sendResult   0x000098    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-                    start   0x00005e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+               sendResult   0x000083    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+                    start   0x000050    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
                       xms   0x00000f    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
                  xseconds   0x00001d    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
 
@@ -63,17 +62,16 @@ Linker Map File - Created Thu Feb 15 14:11:53 2024
                    pulseE   0x000022    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
                      send   0x000027    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
                      inid   0x000035    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\LCDIS.INC
-                     init   0x000050    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-                    start   0x00005e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-                   loop11   0x00006c    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-            ReceiveNumber   0x000074    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-         backFromMultiply   0x00008b    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-               sendResult   0x000098    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-      firstMultiplication   0x0000ac    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-        handle_carry_tens   0x0000ce    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-           multiplication   0x0000d4    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-                mult_loop   0x0000db    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-             fix_overflow   0x0000e4    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
-                 mult_end   0x0000ec    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+                    start   0x000050    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+                   loop11   0x00005e    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+            ReceiveNumber   0x000066    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+         backFromMultiply   0x000076    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+               sendResult   0x000083    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+      firstMultiplication   0x000097    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+        handle_carry_tens   0x0000b9    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+           multiplication   0x0000bf    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+                mult_loop   0x0000c6    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+             fix_overflow   0x0000cf    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
+                 mult_end   0x0000d7    program     static D:\lectures's notes\4th Year\First Semester\Real Time\Projects\ENCS4330-RealTimeProject-3\Mplab\Auxiliary\Auxiliary.asm
 
 

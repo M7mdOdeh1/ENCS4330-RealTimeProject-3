@@ -29,7 +29,7 @@
 
     ORG	0x00        ; Default start address 
     NOP             ; required for ICD mode
-    GOTO    init   ; Jump to the start of the program
+    GOTO    start   ; Jump to the start of the program
     
 
 ; Interrupt vector location ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -42,23 +42,6 @@ ISR:
     retfie 
 
 INCLUDE "LCDIS.INC"	; Include the LCD driver file
-init:
-
-    BANKSEL TRISD
-    MOVLW   0x00
-    MOVWF   TRISD           ; portd is output
-
-    BANKSEL PORTD
-    CALL    inid
-
-    BANKSEL PORTD		; Select bank 0
-    BCF	    Select, RS       ; Select command mode
-    MOVLW    0x01	    ; clear display
-    CALL    send	    ; and send code
-    MOVLW	0x80	    ; position to home cursor
-    CALL	send	    ; and send code 
-
-
 
 ; Main program ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 start:
@@ -100,14 +83,6 @@ ReceiveNumber:
 	movf    PORTC, W
 	andlw   b'00001111'     ; getting the lower nibble by anding with 00001111, here, no need to rotate
 	movwf   num1_unit
-
-    BSF     Select, RS       ; Select data mode
-    MOVF    num1_tens, W
-    ADDLW   0x30
-    CALL    send
-    MOVF    num1_unit, W
-    ADDLW   0x30
-    CALL    send
 
     ; delay for 10ms
     MOVLW   0x0A
@@ -254,12 +229,6 @@ fix_overflow:
     GOTO    mult_end 
 
 mult_end:
-    ; BANKSEL res_mult
-    ; MOVF    res_mult+1, W
-    ; CALL    send
-    ; MOVF    res_mult, W
-    ; CALL    send
-   
 
     RETURN
 
