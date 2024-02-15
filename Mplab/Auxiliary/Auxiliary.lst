@@ -1,0 +1,910 @@
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00002 ;
+                      00003 ;   Project:   Simple Calculator   
+                      00004 ;   File:   auxiliary.asm
+                      00005 ;   Date:   2024-02-15
+                      00006 ;   -----------------------------------
+                      00007 ;
+                      00008 ;   Auxiliary CPU will handle the Multiplication of the first number by the unit digit of the second num
+                            ber
+                      00009 ;
+                      00010 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00011     
+                      00012     PROCESSOR 16F877A
+                      00013     ;   Clock = XT 4MHz, standard fuse settings
+                      00014 
+                      00015     INCLUDE "P16F877A.INC"      ; Include the 16F877 header file
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ;  MPASM PIC16F877A processor include
+                      00005 ; 
+                      00006 ;  (c) Copyright 1999-2011 Microchip Technology, All rights reserved
+                      00007 ;==========================================================================
+                      00008 
+                      00564         LIST
+                      00016     
+2007   3731           00017         __CONFIG 0x3731 ; 00011011100110001
+                      00018 
+                      00019 ; Variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Warning[207]: Found label after column 1. (num1_unit)
+  00000026            00020     num1_unit   EQU                     0x26
+Warning[207]: Found label after column 1. (num1_tens)
+  00000027            00021     num1_tens   EQU                     0x27
+Warning[207]: Found label after column 1. (num2_unit)
+  00000028            00022     num2_unit   EQU                     0x28
+Warning[207]: Found label after column 1. (result)
+  00000030            00023     result      EQU                     0x30    ; 3 bytes for the result(hundreds, tens, and ones)
+Warning[207]: Found label after column 1. (res_mult)
+  00000033            00024     res_mult    EQU                     0x33    ; 2 bytes for the result of multiplication
+Warning[207]: Found label after column 1. (x)
+  00000035            00025     x           EQU                     0x35    ; 1 byte for the first number
+Warning[207]: Found label after column 1. (y)
+  00000036            00026     y           EQU                     0x36    ; 1 byte for the second number
+                      00027 
+                      00028 ; Program Begins ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00029 
+                      00030     ORG 0x00        ; Default start address 
+0000   0000           00031     NOP             ; required for ICD mode
+0001   2???           00032     GOTO    init   ; Jump to the start of the program
+                      00033     
+                      00034 
+                      00035 ; Interrupt vector location ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00036     ORG 0x04            ; Interrupt vector location
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0004   0000           00037     NOP
+0005   2???           00038     GOTO    ISR
+                      00039 
+0006                  00040 ISR:
+0006   1283 1303      00041     BANKSEL PORTD
+0008   0009           00042     retfie 
+                      00043 
+Warning[205]: Found directive in column 1. (INCLUDE)
+                      00044 INCLUDE "LCDIS.INC"     ; Include the LCD driver file
+                      00001 ;--------------------------------------------------------------
+                      00002 ;       LCDIS.INC               MPB     19-12-05
+                      00003 ;
+                      00004 ;       Include file to operate 16x2 LCD display
+                      00005 ;       Uses GPR 70 - 75
+                      00006 ;       
+                      00007 ;       Final version
+                      00008 ;--------------------------------------------------------------
+                      00009 
+  00000070            00010 Timer1  EQU     70              ; 1ms count register
+  00000071            00011 TimerX  EQU     71              ; Xms count register
+  00000072            00012 Var     EQU     72              ; Output variable
+  00000073            00013 Point   EQU     73              ; Program table pointer
+  00000074            00014 Select  EQU     74              ; Used to set or clear RS bit
+  00000075            00015 OutCod  EQU     75              ; Temp store for output code
+                      00016 
+  00000001            00017 RS      EQU     1               ; Register select output bit
+  00000002            00018 E       EQU     2               ; Enable display input
+                      00019 
+                      00020 
+                      00021 ;--------------------------------------------------------------
+                      00022 ;       1ms delay with 1us cycle time (1000 cycles)
+                      00023 ;--------------------------------------------------------------
+0009   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
+000A   00F0           00025         MOVWF   Timer1          ; Load count
+000B   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
+Message[305]: Using default destination of 1 (file).
+000C   0BF0           00027         DECFSZ  Timer1          ; Count
+000D   2???           00028         GOTO    loop1           ; until Z
+000E   0008           00029         RETURN                  ; and finish
+                      00030 
+                      00031 ;--------------------------------------------------------------
+                      00032 ;       Delay Xms
+                      00033 ;       Receives count in W, uses Onems
+                      00034 ;--------------------------------------------------------------
+000F   00F1           00035 xms     MOVWF   TimerX          ; Count for X ms
+0010   2???           00036 loopX   CALL    onems           ; Delay 1ms
+Message[305]: Using default destination of 1 (file).
+0011   0BF1           00037         DECFSZ  TimerX          ; Repeat X times 
+0012   2???           00038         GOTO    loopX           ; until Z
+0013   0008           00039         RETURN                  ; and finish
+                      00040 
+                      00041 ;--------------------------------------------------------------
+                      00042 ;       Delay 1 seconds (1000ms) 
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00043 ;       Uses xms
+                      00044 ;--------------------------------------------------------------
+                      00045 ; nested loop of xms since the maximum number can be in W is 255
+0014   30FA           00046 onesecond       MOVLW   D'250'          ; Count for 1 second
+0015   2???           00047         CALL    xms                     ; Delay 1 second
+0016   30FA           00048         MOVLW   D'250'          ; Count for 1 second
+0017   2???           00049         CALL    xms                     ; Delay 1 second
+0018   30FA           00050         MOVLW   D'250'          ; Count for 1 second
+0019   2???           00051         CALL    xms                     ; Delay 1 second
+001A   30FA           00052         MOVLW   D'250'          ; Count for 1 second
+001B   2???           00053         CALL    xms                     ; Delay 1 second
+001C   0008           00054         RETURN                          ; and finish
+                      00055 
+                      00056 ;--------------------------------------------------------------
+                      00057 ;       xsecond delay
+                      00058 ;       Receives count in W, uses onesecond
+                      00059 ;--------------------------------------------------------------
+001D   00F2           00060 xseconds        MOVWF   Var             ; Store count
+001E   2???           00061 loopx   CALL    onesecond       ; Delay 1 second
+Message[305]: Using default destination of 1 (file).
+001F   0BF2           00062         DECFSZ  Var                     ; Repeat count times
+0020   2???           00063         GOTO    loopx           ; until Z
+0021   0008           00064         RETURN                          ; and finish
+                      00065 
+                      00066 ;--------------------------------------------------------------
+                      00067 ;       Generate data/command clock siganl E
+                      00068 ;--------------------------------------------------------------
+0022   1508           00069 pulseE  BSF     PORTD,E         ; Set E high
+0023   2???           00070         CALL    onems           ; Delay 1ms
+0024   1108           00071         BCF     PORTD,E         ; Reset E low
+0025   2???           00072         CALL    onems           ; Delay 1ms
+0026   0008           00073         RETURN                  ; done
+                      00074 
+                      00075 ;--------------------------------------------------------------
+                      00076 ;       Send a command byte in two nibbles from RB4 - RB7
+                      00077 ;       Receives command in W, uses PulseE and Onems
+                      00078 ;--------------------------------------------------------------
+0027   00F5           00079 send    MOVWF   OutCod          ; Store output code
+0028   39F0           00080         ANDLW   0F0             ; Clear low nybble
+0029   0088           00081         MOVWF   PORTD           ; Output high nybble
+002A   18F4           00082         BTFSC   Select,RS       ; Test RS bit
+002B   1488           00083         BSF     PORTD,RS        ; and set for data
+002C   2???           00084         CALL    pulseE          ; and clock display register
+                      00085         ;CALL   onems           ; wait 1ms for display
+                      00086 
+Message[305]: Using default destination of 1 (file).
+002D   0EF5           00087         SWAPF   OutCod          ; Swap low and high nybbles 
+002E   0875           00088         MOVF    OutCod,W        ; Retrieve output code
+002F   39F0           00089         ANDLW   0F0             ; Clear low nybble
+0030   0088           00090         MOVWF   PORTD           ; Output low nybble
+0031   18F4           00091         BTFSC   Select,RS       ; Test RS bit
+0032   1488           00092         BSF     PORTD,RS        ; and set for data
+0033   2???           00093         CALL    pulseE          ; and clock display register
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00094         ;CALL   onems           ; wait 1ms for display
+0034   0008           00095         RETURN                  ; done
+                      00096 
+                      00097 ;--------------------------------------------------------------
+                      00098 ;       Initialise the display
+                      00099 ;       Uses Send
+                      00100 ;--------------------------------------------------------------
+0035   3064           00101 inid    MOVLW   D'100'          ; Load count for 100ms delay
+0036   2???           00102         CALL    xms             ; and wait for display start
+0037   30F0           00103         MOVLW   0F0             ; Mask for select code
+0038   00F4           00104         MOVWF   Select          ; High nybble not masked
+                      00105 
+0039   3030           00106         MOVLW   0x30            ; Load initial nibble
+003A   0088           00107         MOVWF   PORTD           ; and output it to display
+003B   2???           00108         CALL    pulseE          ; Latch initial code
+003C   3005           00109         MOVLW   D'5'            ; Set delay 5ms
+003D   2???           00110         CALL    xms             ; and wait
+003E   2???           00111         CALL    pulseE          ; Latch initial code again
+003F   2???           00112         CALL    onems           ; Wait 1ms
+0040   2???           00113         CALL    pulseE          ; Latch initial code again
+0041   1208           00114         BCF     PORTD,4         ; Set 4-bit mode
+0042   2???           00115         CALL    pulseE          ; Latch it
+                      00116         
+0043   3028           00117         MOVLW   0x28            ; Set 4-bit mode, 2 lines
+0044   2???           00118         CALL    send            ; and send code
+0045   3008           00119         MOVLW   0x08            ; Switch off display
+0046   2???           00120         CALL    send            ; and send code
+0047   3001           00121         MOVLW   0x01            ; Code to clear display
+0048   2???           00122         CALL    send            ; and send code
+0049   3006           00123         MOVLW   0x06            ; Enable cursor auto inc  
+004A   2???           00124         CALL    send            ; and send code
+004B   3080           00125         MOVLW   0x80            ; Zero display address
+004C   2???           00126         CALL    send            ; and send code
+004D   300C           00127         MOVLW   0x0C            ; Turn on display  
+004E   2???           00128         CALL    send            ; and send code
+                      00129 
+004F   0008           00130         RETURN                  ; Done
+                      00131 
+                      00132 ;--------------------------------------------------------------
+0050                  00045 init:
+                      00046 
+0050   1683 1303      00047     BANKSEL TRISD
+0052   3000           00048     MOVLW   0x00
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0053   0088           00049     MOVWF   TRISD           ; portd is output
+                      00050 
+0054   1283 1303      00051     BANKSEL PORTD
+0056   2???           00052     CALL    inid
+                      00053 
+0057   1283 1303      00054     BANKSEL PORTD               ; Select bank 0
+0059   10F4           00055     BCF     Select, RS       ; Select command mode
+005A   3001           00056     MOVLW    0x01           ; clear display
+005B   2???           00057     CALL    send            ; and send code
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+005C   3080           00058     MOVLW       0x80        ; position to home cursor
+005D   2???           00059     CALL        send        ; and send code 
+                      00060 
+                      00061 
+                      00062 
+                      00063 ; Main program ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+005E                  00064 start:
+                      00065     
+005E   1683 1303      00066     BANKSEL TRISC
+0060   3000           00067         movlw   0x00
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0061   0087           00068         movwf   TRISC           ; portc is input 
+                      00069     
+0062   1283 1303      00070         BANKSEL PORTC   
+0064   30FF           00071         movlw   0xFF      
+0065   0087           00072         movwf   PORTC           ; set portc to 0xFF
+                      00073 
+0066   1683 1303      00074     BANKSEL TRISC
+0068   30FF           00075         movlw   0xFF
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0069   0087           00076         movwf   TRISC           ; portc is input  
+                      00077 
+006A   1283 1303      00078     BANKSEL PORTC   
+                      00079 ; keep iterating until a new value is received
+006C                  00080 loop11:
+Message[305]: Using default destination of 1 (file).
+006C   0687           00081         XORWF   PORTC
+006D   1903           00082         BTFSC   STATUS, Z   ; check if the number changed
+006E   2???           00083         GOTO    loop11      ; if zero, it is the same number, keep iterating until a new value is receiv
+                            ed 
+                      00084     
+006F   0807           00085     MOVF    PORTC, W
+0070   3AFE           00086     XORLW   0xFE
+0071   1903           00087     BTFSC   STATUS, Z       ; check if the number is 0xFE
+0072   2???           00088     GOTO    sendResult      ; if it is, then send the result 
+0073   2???           00089     GOTO    ReceiveNumber   ; if not, recive the number
+                      00090 
+                      00091 ; Receive the first number and the second number
+0074                  00092 ReceiveNumber:
+                      00093 
+0074   1283 1303      00094     BANKSEL PORTC    
+0076   0807           00095         movf    PORTC, W
+0077   39F0           00096         andlw   b'11110000'     ; getting the upper nibble by anding with 11110000
+0078   00A7           00097         movwf   num1_tens
+0079   0EA7           00098     SWAPF   num1_tens, F    ; swap the nibbles in order to make the 4-bits at the most right
+                      00099 
+007A   0807           00100         movf    PORTC, W
+007B   390F           00101         andlw   b'00001111'     ; getting the lower nibble by anding with 00001111, here, no need to rot
+                            ate
+007C   00A6           00102         movwf   num1_unit
+                      00103 
+007D   14F4           00104     BSF     Select, RS       ; Select data mode
+007E   0827           00105     MOVF    num1_tens, W
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+007F   3E30           00106     ADDLW   0x30
+0080   2???           00107     CALL    send
+0081   0826           00108     MOVF    num1_unit, W
+0082   3E30           00109     ADDLW   0x30
+0083   2???           00110     CALL    send
+                      00111 
+                      00112     ; delay for 10ms
+0084   300A           00113     MOVLW   0x0A
+0085   2???           00114     CALL    xms
+                      00115 
+0086   1283 1303      00116     BANKSEL PORTC
+0088   0807           00117     MOVF    PORTC, W
+0089   00A8           00118     MOVWF   num2_unit       ; save the second number unit in num2_unit
+                      00119 
+008A   2???           00120     GOTO    firstMultiplication
+008B                  00121 backFromMultiply:
+                      00122 
+                      00123     ; test
+008B   1283 1303      00124     BANKSEL PORTD
+008D   14F4           00125     BSF     Select, RS       ; Select data mode
+008E   3030           00126     MOVLW   0x30
+008F   0732           00127     ADDWF   result+2, W
+0090   2???           00128     CALL    send
+0091   3030           00129     MOVLW   0x30
+0092   0731           00130     ADDWF   result+1, W
+0093   2???           00131     CALL    send
+0094   3030           00132     MOVLW   0x30
+0095   0730           00133     ADDWF   result, W
+0096   2???           00134     CALL    send
+                      00135     ; test
+                      00136 
+                      00137   
+0097   2???           00138     GOTO    start
+                      00139 
+                      00140 
+                      00141 ; Send the 3-digit result to PORTC
+0098                  00142 sendResult:
+0098   1683 1303      00143     BANKSEL TRISC
+009A   3000           00144     MOVLW   0x00
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+009B   0087           00145     MOVWF   TRISC    ; portc is output
+                      00146     
+009C   1283 1303      00147     BANKSEL PORTC
+009E   0E32           00148     SWAPF   result+2, W     ;swap the two nibbles of hundreds ans save it in Welcome
+009F   0431           00149     IORWF   result+1, W     ;put the tens in lower nibble of W
+                      00150 
+00A0   0087           00151     MOVWF   PORTC   ; send the two most significant bits of the result in one shot
+                      00152 
+                      00153     ; delay for 15ms
+00A1   300F           00154     MOVLW   0x0F
+00A2   2???           00155     CALL    xms
+                      00156 
+00A3   0830           00157     MOVF    result, W
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00A4   0087           00158     MOVWF   PORTC       ; send the least significant bit
+                      00159 
+                      00160     ; delay for 32ms
+00A5   3020           00161     MOVLW   0x20
+00A6   2???           00162     CALL    xms
+                      00163 
+00A7   2???           00164     GOTO    start
+                      00165 
+                      00166 
+                      00167 ; find the multiplication of the first number and the unit digit of the second number
+00A8                  00168 firstMultiplication:
+00A8   01B0           00169     CLRF    result
+00A9   01B1           00170     CLRF    result+1
+00AA   01B2           00171     CLRF    result+2
+                      00172 
+00AB   1283 1303      00173     BANKSEL num2_unit
+00AD   0828           00174     MOVF    num2_unit, W
+00AE   00B6           00175     MOVWF   y
+00AF   0826           00176     MOVF    num1_unit, W
+00B0   00B5           00177     MOVWF   x
+00B1   2???           00178     CALL    multiplication  ; multiply num2_unit and num1_unit
+                      00179 
+                      00180     ; save the result in res_mult and res_mult+1
+00B2   1283 1303      00181     BANKSEL res_mult
+00B4   0833           00182     MOVF    res_mult, W
+00B5   00B0           00183     MOVWF   result
+00B6   0834           00184     MOVF    res_mult+1, W
+00B7   00B1           00185     MOVWF   result+1
+                      00186 
+00B8   1283 1303      00187     BANKSEL num1_tens
+00BA   0828           00188     MOVF    num2_unit, W
+00BB   00B5           00189     MOVWF   x
+00BC   0827           00190     MOVF    num1_tens, W
+00BD   00B6           00191     MOVWF   y
+00BE   2???           00192     CALL    multiplication  ; multiply num2_unit and num1_tens
+                      00193 
+                      00194     ; add the result to the tens place of the result
+00BF   1283 1303      00195     BANKSEL res_mult
+00C1   0833           00196     MOVF    res_mult, W
+00C2   07B1           00197     ADDWF   result+1, F      ; add the result[0] to the tens place of the result
+00C3   0834           00198     MOVF    res_mult+1, W
+00C4   07B2           00199     ADDWF   result+2, F      ; add the result[1] to the hundreds place of the result
+                      00200 
+00C5   0831           00201     MOVF    result+1, W
+00C6   3C09           00202     SUBLW   0x09
+00C7   1C03           00203     BTFSS   STATUS, C           ; check if the tens is larger than 9
+00C8   2???           00204     GOTO    handle_carry_tens   ; if tens is larger than 9, handle the carry
+00C9   2???           00205     GOTO    backFromMultiply    ; if tens is not larger than 9, return
+                      00206 
+                      00207 
+                      00208 
+                      00209 ; handle the carry if res_tens is larger than 9
+00CA                  00210 handle_carry_tens:
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00CA   1283 1303      00211     BANKSEL result+1
+00CC   300A           00212     MOVLW   0x0A            
+00CD   02B1           00213     SUBWF   result+1, F         ; subtract 10 from res_tens
+00CE   0AB2           00214     INCF    result+2, F         ; increment res_hundreds
+00CF   2???           00215     GOTO    backFromMultiply    ; return
+                      00216     
+                      00217 
+                      00218 ; multiply value of x and y and store the result in res_mult
+00D0                  00219 multiplication:
+00D0   1283 1303      00220     BANKSEL res_mult
+00D2   01B3           00221     CLRF    res_mult
+00D3   01B4           00222     CLRF    res_mult+1
+                      00223 
+00D4   0836           00224     MOVF    y, W
+00D5   1903           00225     BTFSC   STATUS, Z   
+00D6   2???           00226     GOTO    mult_end    ; If y is zero, return
+                      00227          
+00D7                  00228 mult_loop:
+00D7   0835           00229     MOVF    x, W       
+00D8   07B3           00230     ADDWF   res_mult, F     ; Add x to the result
+                      00231     
+                      00232     ; check if the number is largaer than 9
+00D9   0833           00233     MOVF   res_mult, W
+00DA   3C09           00234     SUBLW   0x09
+00DB   1C03           00235     BTFSS   STATUS, C
+00DC   2???           00236     GOTO    fix_overflow
+00DD   0BB6           00237     DECFSZ  y, F            ; decrement y
+00DE   2???           00238     GOTO    mult_loop       ; repeat the loop
+00DF   2???           00239     GOTO    mult_end
+                      00240 
+00E0                  00241 fix_overflow:
+00E0   1283 1303      00242     BANKSEL res_mult
+                      00243     ; if the number is larger than 9, subtract 10 from it and increment the next byte 
+00E2   300A           00244     MOVLW   0x0A                       
+00E3   02B3           00245     SUBWF   res_mult, F
+00E4   0AB4           00246     INCF    res_mult+1, F
+00E5   0BB6           00247     DECFSZ  y, F            ; decrement y
+00E6   2???           00248     GOTO    mult_loop       ; repeat the loop    
+00E7   2???           00249     GOTO    mult_end 
+                      00250 
+00E8                  00251 mult_end:
+                      00252     ; BANKSEL res_mult
+                      00253     ; MOVF    res_mult+1, W
+                      00254     ; CALL    send
+                      00255     ; MOVF    res_mult, W
+                      00256     ; CALL    send
+                      00257    
+                      00258 
+00E8   0008           00259     RETURN
+                      00260 
+                      00261 
+Warning[205]: Found directive in column 1. (END)
+3731                  00262 END
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  9
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000006
+ADCS1                             00000007
+ADCS2                             00000006
+ADDEN                             00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+BCLIE                             00000003
+BCLIF                             00000003
+BF                                00000000
+BRGH                              00000002
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCP2CON                           0000001D
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2X                             00000005
+CCP2Y                             00000004
+CCPR1                             00000015
+CCPR1H                            00000016
+CCPR1L                            00000015
+CCPR2                             0000001B
+CCPR2H                            0000001C
+CCPR2L                            0000001B
+CHS0                              00000003
+CHS1                              00000004
+CHS2                              00000005
+CIS                               00000003
+CKE                               00000006
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 10
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CKP                               00000004
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             0000009C
+CMIE                              00000006
+CMIF                              00000006
+CREN                              00000004
+CSRC                              00000007
+CVR0                              00000000
+CVR1                              00000001
+CVR2                              00000002
+CVR3                              00000003
+CVRCON                            0000009D
+CVREN                             00000007
+CVROE                             00000006
+CVRR                              00000005
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+D_A                               00000005
+D_NOT_A                           00000005
+E                                 00000002
+EEADR                             0000010D
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GCEN                              00000007
+GIE                               00000007
+GO                                00000002
+GO_DONE                           00000002
+GO_NOT_DONE                       00000002
+I2C_DATA                          00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IBF                               00000007
+IBOV                              00000005
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+ISR                               00000006
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 11
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BO                            00000000
+NOT_BOR                           00000000
+NOT_DONE                          00000002
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RC8                           00000006
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_TX8                           00000006
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OBF                               00000006
+OERR                              00000001
+OPTION_REG                        00000081
+OutCod                            00000075
+P                                 00000004
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PEN                               00000002
+PIE1                              0000008C
+PIE2                              0000008D
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PORTC                             00000007
+PORTD                             00000008
+PORTE                             00000009
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSPIE                             00000007
+PSPIF                             00000007
+PSPMODE                           00000004
+Point                             00000073
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RC0                               00000000
+RC1                               00000001
+RC2                               00000002
+RC3                               00000003
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RC8_9                             00000006
+RC9                               00000006
+RCD8                              00000000
+RCEN                              00000003
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RE0                               00000000
+RE1                               00000001
+RE2                               00000002
+READ_WRITE                        00000002
+RP0                               00000005
+RP1                               00000006
+RS                                00000001
+RSEN                              00000001
+RX9                               00000006
+RX9D                              00000000
+R_NOT_W                           00000002
+R_W                               00000002
+ReceiveNumber                     00000074
+S                                 00000003
+SEN                               00000000
+SMP                               00000007
+SPBRG                             00000099
+SPEN                              00000007
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SREN                              00000005
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPCON2                           00000091
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000094
+STATUS                            00000003
+SYNC                              00000004
+Select                            00000074
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TMR0                              00000001
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 14
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TRISA5                            00000005
+TRISB                             00000086
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000087
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TRISD                             00000088
+TRISD0                            00000000
+TRISD1                            00000001
+TRISD2                            00000002
+TRISD3                            00000003
+TRISD4                            00000004
+TRISD5                            00000005
+TRISD6                            00000006
+TRISD7                            00000007
+TRISE                             00000089
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TX8_9                             00000006
+TX9                               00000006
+TX9D                              00000000
+TXD8                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+Timer1                            00000070
+TimerX                            00000071
+UA                                00000001
+Var                               00000072
+W                                 00000000
+WCOL                              00000007
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 15
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_BODEN_ON                         00003FFF
+_BOREN_OFF                        00003FBF
+_BOREN_ON                         00003FFF
+_CONFIG                           00002007
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003EFF
+_CP_ALL                           00001FFF
+_CP_OFF                           00003FFF
+_CP_ON                            00001FFF
+_DEBUG_OFF                        00003FFF
+_DEBUG_ON                         000037FF
+_DEVID1                           00002006
+_FOSC_EXTRC                       00003FFF
+_FOSC_HS                          00003FFE
+_FOSC_LP                          00003FFC
+_FOSC_XT                          00003FFD
+_HS_OSC                           00003FFE
+_IDLOC0                           00002000
+_IDLOC1                           00002001
+_IDLOC2                           00002002
+_IDLOC3                           00002003
+_LP_OSC                           00003FFC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC                           00003FFF
+_WDTE_OFF                         00003FFB
+_WDTE_ON                          00003FFF
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_WRT_1FOURTH                      00003BFF
+_WRT_256                          00003DFF
+_WRT_HALF                         000039FF
+_WRT_OFF                          00003FFF
+_XT_OSC                           00003FFD
+__16F877A                         00000001
+__DEBUG                           1
+backFromMultiply                  0000008B
+firstMultiplication               000000A8
+fix_overflow                      000000E0
+handle_carry_tens                 000000CA
+inid                              00000035
+init                              00000050
+loop1                             0000000B
+loop11                            0000006C
+loopX                             00000010
+loopx                             0000001E
+mult_end                          000000E8
+mult_loop                         000000D7
+multiplication                    000000D0
+num1_tens                         00000027
+num1_unit                         00000026
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+num2_unit                         00000028
+onems                             00000009
+onesecond                         00000014
+pulseE                            00000022
+res_mult                          00000033
+result                            00000030
+send                              00000027
+sendResult                        00000098
+start                             0000005E
+x                                 00000035
+xms                               0000000F
+xseconds                          0000001D
+y                                 00000036
+
+Errors   :     0
+Warnings :     9 reported,     0 suppressed
+Messages :     9 reported,     0 suppressed
+
+

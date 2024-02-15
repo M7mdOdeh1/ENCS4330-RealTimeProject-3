@@ -47,6 +47,9 @@
     x               EQU 45            ; Temp to put the first digit of multiplication operation
     y               EQU 46            ; Temp to put the second digit of multiplication operation
     res_mult        EQU 47            ; 2 bytes to save the result of the multiplication
+    aux_res_unit    EQU 50            ; Unit digit of the result from the auxiliary CPU
+    aux_res_tens    EQU 51            ; Tens digit of the result from the auxiliary CPU
+    aux_res_hundreds    EQU 52        ; Hundreds digit of the result from the auxiliary CPU
 
 
 ; Program Begins ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,7 +92,7 @@ buttonInterrupt:
     BSF     INTCON, GIE             ; enable global interrupt
     RETFIE
 
-
+    
 
 ; Timer Interrupt Service Routine for 2-second delay detection
 timerInterrupt:
@@ -194,9 +197,15 @@ saveNum2Unit:
     BANKSEL TMR0        
 	CLRF    TMR0           ; Clear Timer0
 
-    ; calculate the multiplication of the first number by the tenth digit of the second number
-    GOTO    calculateSecondMultiplication
+    
+    GOTO    sendDataToAuxiliary             ; send num1 and num2_unit to auxiliary CPU
+backFromSend:
+    GOTO    calculateSecondMultiplication   ; multiply num1 by num2_tens 
 backFromMult:
+    GOTO    getDataFromAuxiliary            ; get the 3 digits result from auxiliary CPU
+backFromGet:
+    GOTO    calculateFinalResult            ; calculate the final result  
+backFromFinal:
 
     RETFIE
 
@@ -230,16 +239,22 @@ skip:
 
 
 INCLUDE "LCDIS.INC"	; Include the LCD driver file
+
 ; Initialize the system ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 init:
     
     BANKSEL	TRISB		; Select bank 1
     BSF TRISB, TRISB0
 	CLRF	TRISD		; LCD output port
+    CLRF	TRISC       ; portc is output
+
 
 	BANKSEL PORTD		; Select bank 0
 	MOVLW	0x01
 	CLRF	PORTD		; Clear display outputs
+
+    MOVLW   0xFF
+    MOVWF   PORTC
 
     CALL    inid        ; Initialize LCD
 
@@ -280,7 +295,13 @@ loop
 
 ; Reset the system
 resetSystem:
+    BANKSEL TRISC
+    CLRF    TRISC       ; portc is output
+
     BANKSEL PORTD		; Select bank 0
+    MOVLW    0xFF
+    MOVWF    PORTC
+
     BCF    Select,RS	; Select command mode
     MOVLW    0x01	    ; clear display
     CALL    send	    ; and send code
@@ -519,6 +540,130 @@ incrementCurrentDigit:
     CLRF    current_digit     ; Reset the current digit to 0 if it 10 or more
     RETURN
 
+; send the num1 and num2_unit to the auxiliary CPU
+sendDataToAuxiliary:
+   	BANKSEL TRISC
+	CLRF    TRISC       ; portc is output 
+
+    BANKSEL PORTC
+    SWAPF   num1_tens, W ; swap the nibbles
+    MOVWF   x           ; put num1_tens in the upper nibble
+   
+    MOVF    num1_unit, W
+    IORWF   x, W        ; put num1_unit in the lower nibble and save it in W
+
+    MOVWF   PORTC       ; send the result to the auxiliary CPU
+
+    MOVLW   D'10'
+    CALL    xms         ; delay for 10ms to make sure the data is sent
+
+    MOVF    num2_unit, W
+    MOVWF   PORTC       ; send num2_unit to the auxiliary CPU
+
+    MOVLW   D'10'
+    CALL    xms         ; delay for 10ms to make sure the data is sent
+
+    MOVLW   0xFF
+    MOVWF   PORTC       ; clear the portc
+
+    GOTO    backFromSend
+
+
+getDataFromAuxiliary:
+    MOVLW   D'5'
+    CALL    xms  
+    ; send 0xFE to the auxiliary CPU to tell it to send the result
+    BANKSEL TRISC
+    CLRF    TRISC       ; portc is output
+    BANKSEL PORTC
+    MOVLW   0xFE
+    MOVWF   PORTC       ; send 0xFE to the auxiliary CPU
+
+    MOVLW   D'10'
+    CALL    xms         ; delay for 10ms to make sure the data is sent
+
+    ; get the result from the auxiliary CPU
+    BANKSEL TRISC
+    MOVLW   0xFF
+    MOVWF   TRISC       ; portc is input
+
+    ; get two most significant digits from the auxiliary CPU
+    BANKSEL PORTC
+    MOVF    PORTC, W
+    MOVWF   aux_res_tens        ; tens in lower nibble
+
+    SWAPF   PORTC, W
+    MOVWF   aux_res_hundreds    ; hundreds in upper nibble  
+
+    MOVLW   0x0F
+    ANDWF   aux_res_tens, F     ; clear the upper nibble for tens
+    MOVLW   0x0F
+    ANDWF   aux_res_hundreds, F ; clear the upper nibble for hundreds
+
+    ;delay for 10ms to make sure the data is received
+    MOVLW   D'10'
+    CALL    xms
+
+    ; get the least significant digit from the auxiliary CPU
+    MOVF    PORTC, W
+    MOVWF   aux_res_unit
+
+    BANKSEL TRISC
+    MOVLW   0x00
+    MOVWF   TRISC       ; portc is input
+
+    BANKSEL PORTC
+    MOVLW   0xFF
+    MOVWF   PORTC       ; clear the portc
+
+    GOTO    backFromGet
+
+
+; Calculate the final result
+calculateFinalResult:
+    BANKSEL PORTA
+
+    ; add the unit digit to the result from the auxiliary CPU
+    MOVF    aux_res_unit, W
+    MOVWF   res_unit
+
+    ; add the tens digit to the result from the auxiliary CPU
+    MOVF    aux_res_tens, W
+    ADDWF   res_tens, F    
+
+    ; check if the number is largaer than 9
+    MOVF    res_tens, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    CALL    handle_carry_tens
+
+    MOVF    aux_res_hundreds, W
+    ADDWF   res_hundreds, F
+    ; check if the number is largaer than 9
+    MOVF    res_hundreds, W
+    SUBLW   0x09
+    BTFSS   STATUS, C
+    CALL    handle_carry_hundreds
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;print the result on the LCD
+    BANKSEL PORTD		; Select bank 0
+    BSF    Select,RS	; Select data mode
+    MOVF   res_thousands, W
+    ADDLW  0x30
+    CALL   send
+    MOVF   res_hundreds, W
+    ADDLW  0x30
+    CALL   send
+    MOVF   res_tens, W
+    ADDLW  0x30
+    CALL   send
+    MOVF   res_unit, W
+    ADDLW  0x30
+    CALL   send
+
+    GOTO    backFromFinal
+
 
 ; Calculate the multiplication of the first number by the tenth digit of the second number
 calculateSecondMultiplication:
@@ -579,77 +724,6 @@ calculateSecondMultiplication:
     MOVF    res_mult+1, W
     ADDWF   res_thousands, F
     
-
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ; auxiliary part
-    ; find the multiplication of num1_unit by num2_unit
-    BANKSEL num1_unit
-    MOVF    num1_unit, W
-    MOVWF   x
-    MOVF    num2_unit, W
-    MOVWF   y
-    CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
-
-    ; save res_mult[0] in res_unit 
-    BANKSEL res_unit
-    MOVF    res_mult, W
-    ADDWF   res_unit, F
-
-    ; add res_mult[1] to res_tens
-    MOVF    res_mult+1, W
-    ADDWF   res_tens, F
-    ; check if the number is largaer than 9
-    MOVF    res_tens, W
-    SUBLW   0x09
-    BTFSS   STATUS, C
-    CALL    handle_carry_tens
-
-    ; find the multiplication of num1_tens by num2_unit
-    BANKSEL num1_tens
-    MOVF    num1_tens, W
-    MOVWF   x
-    MOVF    num2_unit, W
-    MOVWF   y
-    CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
-
-    BANKSEL res_mult
-    ; add res_mult[0] to res_tens 
-    MOVF    res_mult, W
-    ADDWF   res_tens, F
-    ; check if the number is largaer than 9
-    MOVF    res_tens, W
-    SUBLW   0x09
-    BTFSS   STATUS, C
-    CALL    handle_carry_tens
-
-    ; add res_mult[1] to res_hundreds
-    MOVF    res_mult+1, W
-    ADDWF   res_hundreds, F
-
-    ; check if the number is largaer than 9
-    MOVF    res_hundreds, W
-    SUBLW   0x09
-    BTFSS   STATUS, C
-    CALL    handle_carry_hundreds
-
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;print the result on the LCD
-    BANKSEL PORTD		; Select bank 0
-    BSF    Select,RS	; Select data mode
-    MOVF   res_thousands, W
-    ADDLW  0x30
-    CALL   send
-    MOVF   res_hundreds, W
-    ADDLW  0x30
-    CALL   send
-    MOVF   res_tens, W
-    ADDLW  0x30
-    CALL   send
-    MOVF   res_unit, W
-    ADDLW  0x30
-    CALL   send
-
-
     GOTO    backFromMult
 
     
@@ -668,7 +742,6 @@ handle_carry_hundreds:
     RETURN
 
 
-
 ; multiply value of x and y and store the result in res_mult
 multiplication:
     BANKSEL res_mult
@@ -679,7 +752,7 @@ multiplication:
     BTFSC   STATUS, Z   
     GOTO    mult_end    ; If y is zero, return
          
-
+; add x to res_mult y times
 mult_loop:
     MOVF    x, W       
     ADDWF   res_mult, F     ; Add x to the result
@@ -706,7 +779,6 @@ fix_overflow:
 mult_end:
     RETURN
    
-
 END
 
 

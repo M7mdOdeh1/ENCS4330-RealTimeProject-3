@@ -1,4 +1,4 @@
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  1
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ Warning[207]: Found label after column 1. (num1_tens)
 Warning[207]: Found label after column 1. (num1_unit)
   00000033            00037     num1_unit       EQU 33        ; Unit digit of the first number
 Warning[207]: Found label after column 1. (num2_tens)
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  2
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -87,218 +87,230 @@ Warning[207]: Found label after column 1. (y)
   00000046            00048     y               EQU 46            ; Temp to put the second digit of multiplication operation
 Warning[207]: Found label after column 1. (res_mult)
   00000047            00049     res_mult        EQU 47            ; 2 bytes to save the result of the multiplication
-                      00050 
-                      00051 
-                      00052 ; Program Begins ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Warning[207]: Found label after column 1. (aux_res_unit)
+  00000050            00050     aux_res_unit    EQU 50            ; Unit digit of the result from the auxiliary CPU
+Warning[207]: Found label after column 1. (aux_res_tens)
+  00000051            00051     aux_res_tens    EQU 51            ; Tens digit of the result from the auxiliary CPU
+Warning[207]: Found label after column 1. (aux_res_hundreds)
+  00000052            00052     aux_res_hundreds    EQU 52        ; Hundreds digit of the result from the auxiliary CPU
                       00053 
-                      00054     ORG 0x00    ; Default start address 
-0000   0000           00055     NOP         ; required for ICD mode
-0001   2???           00056     GOTO    init
-                      00057     
-                      00058 
-                      00059 ; Interrupt vector location ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00060     ORG 0x04            ; Interrupt vector location
-0004   0000           00061     NOP
-0005   138B           00062     BCF     INTCON, GIE    ; disable global interrupt during the interrupt
-0006   1C8B           00063     BTFSS   INTCON, INTF       ; Check if the interrupt is from INT0
-0007   2???           00064     GOTO    timerInterrupt   ; Jump to Timer0 interrupt
-                      00065 
-0008                  00066 buttonInterrupt:
-                      00067     ; check if the state is 16 (the button is pressed after the result is displayed, so we need to reset
+                      00054 
+                      00055 ; Program Begins ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00056 
+                      00057     ORG 0x00    ; Default start address 
+0000   0000           00058     NOP         ; required for ICD mode
+0001   2???           00059     GOTO    init
+                      00060     
+                      00061 
+                      00062 ; Interrupt vector location ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00063     ORG 0x04            ; Interrupt vector location
+0004   0000           00064     NOP
+0005   138B           00065     BCF     INTCON, GIE    ; disable global interrupt during the interrupt
+0006   1C8B           00066     BTFSS   INTCON, INTF       ; Check if the interrupt is from INT0
+0007   2???           00067     GOTO    timerInterrupt   ; Jump to Timer0 interrupt
+                      00068 
+0008                  00069 buttonInterrupt:
+                      00070     ; check if the state is 16 (the button is pressed after the result is displayed, so we need to reset
                              the system)
-0008   1283 1303      00068     BANKSEL state
-000A   1A38           00069     BTFSC   state, 4
-000B   2???           00070     GOTO    resetSystem
-                      00071 
-                      00072 
-                      00073 
-000C   2???           00074     CALL incrementCurrentDigit  ; increment the current digit
-                      00075     
-000D   1283 1303      00076     BANKSEL current_digit
-000F   0830           00077     MOVF    current_digit, W      ; Move the current digit to W
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  3
+0008   1283 1303      00071     BANKSEL state
+000A   1A38           00072     BTFSC   state, 4
+000B   2???           00073     GOTO    resetSystem
+                      00074 
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0010   3E30           00078     ADDLW   0x30
-0011   14F4           00079     BSF     Select,RS           ; Select data mode
-0012   2???           00080     CALL    send                ; Send the current digit to the LCD
-                      00081 
-                      00082     ; move cursor to the current digit
-0013   10F4           00083     BCF     Select,RS   ; Select command mode
-0014   0837           00084     MOVF    position, W
-0015   2???           00085     CALL    send
-                      00086 
-0016   2???           00087     CALL    resetTimer0            ; Reset Timer0
-0017   108B           00088     BCF     INTCON, INTF            ; Clear the interrupt flag
-0018   178B           00089     BSF     INTCON, GIE             ; enable global interrupt
-0019   0009           00090     RETFIE
-                      00091 
-                      00092 
-                      00093 
-                      00094 ; Timer Interrupt Service Routine for 2-second delay detection
-001A                  00095 timerInterrupt:
-001A   1283 1303      00096     BANKSEL INTCON
-                      00097         
-001C   1283 1303      00098         BANKSEL PORTA
+                      00075 
+                      00076 
+000C   2???           00077     CALL incrementCurrentDigit  ; increment the current digit
+                      00078     
+000D   1283 1303      00079     BANKSEL current_digit
+000F   0830           00080     MOVF    current_digit, W      ; Move the current digit to W
+0010   3E30           00081     ADDLW   0x30
+0011   14F4           00082     BSF     Select,RS           ; Select data mode
+0012   2???           00083     CALL    send                ; Send the current digit to the LCD
+                      00084 
+                      00085     ; move cursor to the current digit
+0013   10F4           00086     BCF     Select,RS   ; Select command mode
+0014   0837           00087     MOVF    position, W
+0015   2???           00088     CALL    send
+                      00089 
+0016   2???           00090     CALL    resetTimer0            ; Reset Timer0
+0017   108B           00091     BCF     INTCON, INTF            ; Clear the interrupt flag
+0018   178B           00092     BSF     INTCON, GIE             ; enable global interrupt
+0019   0009           00093     RETFIE
+                      00094 
+                      00095     
+                      00096 
+                      00097 ; Timer Interrupt Service Routine for 2-second delay detection
+001A                  00098 timerInterrupt:
+001A   1283 1303      00099     BANKSEL INTCON
+                      00100         
+001C   1283 1303      00101         BANKSEL PORTA
 Message[305]: Using default destination of 1 (file).
-001E   0BB6           00099         DECFSZ  timerCounter    ; Decrement the timer counter and check if 2 seconds have passed
-001F   2???           00100     GOTO        skip            ; Skip the next step if 2 seconds have not passed
-                      00101 
-                      00102     ; if 2 seconds have passed 
-                      00103 
-0020   0AB7           00104     INCF    position, F     ; increment the cursor position to move the cursor to the next digit
-0021   10F4           00105     BCF     Select,RS       ; Select command mode
-0022   0837           00106     MOVF    position, W
-0023   2???           00107     CALL    send            ; move cursor to the next digit
-                      00108 
-                      00109     ;
-                      00110 
-                      00111     ; check state to save the current digit in the appropriate variable
-0024   1283 1303      00112     BANKSEL state
-0026   1838           00113     BTFSC   state, 0          ; check if the state is 1(first digit of the first number)
-0027   2???           00114     GOTO    saveNum1Tens
-0028   18B8           00115     BTFSC   state, 1          ; check if the state is 2(second digit of the first number)
-0029   2???           00116     GOTO    saveNum1Unit    
-002A   1938           00117     BTFSC   state, 2          ; check if the state is 4(first digit of the second number)
-002B   2???           00118     GOTO    saveNum2Tens    
-002C   19B8           00119     BTFSC   state, 3          ; check if the state is 8(second digit of the second number)
-002D   2???           00120     GOTO    saveNum2Unit
-                      00121 
-                      00122 ;--------------------------------------------------------------------------------------------
-                      00123 
-                      00124 ; save the current digit in num1_tens
-002E                  00125 saveNum1Tens:
-002E   1283 1303      00126     BANKSEL num1_tens
-0030   0830           00127     MOVF    current_digit, W
-0031   00B2           00128     MOVWF   num1_tens       ; save the current digit in num1_tens
-                      00129 
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  4
+001E   0BB6           00102         DECFSZ  timerCounter    ; Decrement the timer counter and check if 2 seconds have passed
+001F   2???           00103     GOTO        skip            ; Skip the next step if 2 seconds have not passed
+                      00104 
+                      00105     ; if 2 seconds have passed 
+                      00106 
+0020   0AB7           00107     INCF    position, F     ; increment the cursor position to move the cursor to the next digit
+0021   10F4           00108     BCF     Select,RS       ; Select command mode
+0022   0837           00109     MOVF    position, W
+0023   2???           00110     CALL    send            ; move cursor to the next digit
+                      00111 
+                      00112     ;
+                      00113 
+                      00114     ; check state to save the current digit in the appropriate variable
+0024   1283 1303      00115     BANKSEL state
+0026   1838           00116     BTFSC   state, 0          ; check if the state is 1(first digit of the first number)
+0027   2???           00117     GOTO    saveNum1Tens
+0028   18B8           00118     BTFSC   state, 1          ; check if the state is 2(second digit of the first number)
+0029   2???           00119     GOTO    saveNum1Unit    
+002A   1938           00120     BTFSC   state, 2          ; check if the state is 4(first digit of the second number)
+002B   2???           00121     GOTO    saveNum2Tens    
+002C   19B8           00122     BTFSC   state, 3          ; check if the state is 8(second digit of the second number)
+002D   2???           00123     GOTO    saveNum2Unit
+                      00124 
+                      00125 ;--------------------------------------------------------------------------------------------
+                      00126 
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0032   3002           00130     MOVLW   0x02
-0033   00B8           00131     MOVWF   state          ; change the state to 2 (entering the 2nd digit of the first number)
+                      00127 ; save the current digit in num1_tens
+002E                  00128 saveNum1Tens:
+002E   1283 1303      00129     BANKSEL num1_tens
+0030   0830           00130     MOVF    current_digit, W
+0031   00B2           00131     MOVWF   num1_tens       ; save the current digit in num1_tens
                       00132 
-0034   2???           00133     GOTO    resetCurrentDigit
-                      00134 
-                      00135 ; save the current digit in num1_unit
-0035                  00136 saveNum1Unit:
-0035   1283 1303      00137     BANKSEL num1_unit
-0037   0830           00138     MOVF    current_digit, W
-0038   00B3           00139     MOVWF   num1_unit       ; save the current digit in num1_unit
-                      00140 
-0039   3004           00141     MOVLW    0x04    
-003A   00B8           00142     MOVWF    state          ; change the state to 4 (entering the 1st digit of the second number)
+0032   3002           00133     MOVLW   0x02
+0033   00B8           00134     MOVWF   state          ; change the state to 2 (entering the 2nd digit of the first number)
+                      00135 
+0034   2???           00136     GOTO    resetCurrentDigit
+                      00137 
+                      00138 ; save the current digit in num1_unit
+0035                  00139 saveNum1Unit:
+0035   1283 1303      00140     BANKSEL num1_unit
+0037   0830           00141     MOVF    current_digit, W
+0038   00B3           00142     MOVWF   num1_unit       ; save the current digit in num1_unit
                       00143 
-                      00144     ; print "x" on the LCD
-003B   1283 1303      00145     BANKSEL PORTD               ; Select bank 0
-003D   14F4           00146     BSF    Select,RS    ; Select data mode
-003E   3078           00147     MOVLW       'x'
-003F   2???           00148     CALL        send
-                      00149 
-                      00150     ; increment the cursor position
-0040   0AB7           00151     INCF    position, F     ; increment the cursor position to move the cursor to the next digit
+0039   3004           00144     MOVLW    0x04    
+003A   00B8           00145     MOVWF    state          ; change the state to 4 (entering the 1st digit of the second number)
+                      00146 
+                      00147     ; print "x" on the LCD
+003B   1283 1303      00148     BANKSEL PORTD               ; Select bank 0
+003D   14F4           00149     BSF    Select,RS    ; Select data mode
+003E   3078           00150     MOVLW       'x'
+003F   2???           00151     CALL        send
                       00152 
-0041   2???           00153     CALL    printNumber2     ; print "Number 2" on the LCD on the first line
-                      00154 
-0042   2???           00155     GOTO    resetCurrentDigit
-                      00156 
-                      00157 ; save the current digit in num2_tens
-0043                  00158 saveNum2Tens:
-0043   1283 1303      00159     BANKSEL num2_tens
-0045   0830           00160     MOVF    current_digit, W
-0046   00B4           00161     MOVWF   num2_tens       ; save the current digit in num2_tens
-                      00162 
-0047   3008           00163     MOVLW    0x08
-0048   00B8           00164     MOVWF    state          ; change the state to 8 (entering the 2nd digit of the second number)
+                      00153     ; increment the cursor position
+0040   0AB7           00154     INCF    position, F     ; increment the cursor position to move the cursor to the next digit
+                      00155 
+0041   2???           00156     CALL    printNumber2     ; print "Number 2" on the LCD on the first line
+                      00157 
+0042   2???           00158     GOTO    resetCurrentDigit
+                      00159 
+                      00160 ; save the current digit in num2_tens
+0043                  00161 saveNum2Tens:
+0043   1283 1303      00162     BANKSEL num2_tens
+0045   0830           00163     MOVF    current_digit, W
+0046   00B4           00164     MOVWF   num2_tens       ; save the current digit in num2_tens
                       00165 
-0049   2???           00166     GOTO    resetCurrentDigit
-                      00167 
-                      00168 ; save the current digit in num2_unit
-004A                  00169 saveNum2Unit:
-004A   1283 1303      00170     BANKSEL num2_unit
-004C   0830           00171     MOVF    current_digit, W
-004D   00B5           00172     MOVWF   num2_unit       ; save the current digit in num2_unit
-                      00173 
-004E   3010           00174     MOVLW    0x10
-004F   00B8           00175     MOVWF    state          ; change the state to 16 (finished entering the second number)
+0047   3008           00166     MOVLW    0x08
+0048   00B8           00167     MOVWF    state          ; change the state to 8 (entering the 2nd digit of the second number)
+                      00168 
+0049   2???           00169     GOTO    resetCurrentDigit
+                      00170 
+                      00171 ; save the current digit in num2_unit
+004A                  00172 saveNum2Unit:
+004A   1283 1303      00173     BANKSEL num2_unit
+004C   0830           00174     MOVF    current_digit, W
+004D   00B5           00175     MOVWF   num2_unit       ; save the current digit in num2_unit
                       00176 
-                      00177     ; print "=" on the LCD
-0050   1283 1303      00178     BANKSEL PORTD               ; Select bank 0
-0052   14F4           00179     BSF    Select,RS    ; Select data mode
-0053   303D           00180     MOVLW       '='
-0054   2???           00181     CALL        send
-                      00182 
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  5
+004E   3010           00177     MOVLW    0x10
+004F   00B8           00178     MOVWF    state          ; change the state to 16 (finished entering the second number)
+                      00179 
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0055   2???           00183     CALL    printResult ; print "Result" on the LCD on the first line
-                      00184 
-                      00185     ; hide the cursor
-0056   10F4           00186     BCF     Select,RS   ; Select command mode
-0057   300C           00187     MOVLW       0x0C
-0058   2???           00188     CALL        send
-                      00189 
-                      00190     ; disable the Timer0 interrupt
-0059   1283 1303      00191     BANKSEL INTCON
-005B   128B           00192     BCF     INTCON, TMR0IE  ; Disable Timer0 interrupt
-                      00193 
-005C   1283 1303      00194     BANKSEL TMR0        
-005E   0181           00195         CLRF    TMR0           ; Clear Timer0
+                      00180     ; print "=" on the LCD
+0050   1283 1303      00181     BANKSEL PORTD               ; Select bank 0
+0052   14F4           00182     BSF    Select,RS    ; Select data mode
+0053   303D           00183     MOVLW       '='
+0054   2???           00184     CALL        send
+                      00185 
+0055   2???           00186     CALL    printResult ; print "Result" on the LCD on the first line
+                      00187 
+                      00188     ; hide the cursor
+0056   10F4           00189     BCF     Select,RS   ; Select command mode
+0057   300C           00190     MOVLW       0x0C
+0058   2???           00191     CALL        send
+                      00192 
+                      00193     ; disable the Timer0 interrupt
+0059   1283 1303      00194     BANKSEL INTCON
+005B   128B           00195     BCF     INTCON, TMR0IE  ; Disable Timer0 interrupt
                       00196 
-                      00197     ; calculate the multiplication of the first number by the tenth digit of the second number
-005F   2???           00198     GOTO    calculateSecondMultiplication
-0060                  00199 backFromMult:
-                      00200 
-0060   0009           00201     RETFIE
-                      00202 
-                      00203 ;--------------------------------------------------------------------------------------------
-                      00204 
-0061                  00205 resetCurrentDigit:
-0061   1283 1303      00206     BANKSEL PORTD               ; Select bank 0
-0063   01B0           00207     CLRF    current_digit      ; Reset the current digit to 0
-0064   14F4           00208     BSF     Select,RS   ; Select data mode
-0065   3030           00209     MOVLW       '0'         ; print the current digit
-0066   2???           00210     CALL        send
+005C   1283 1303      00197     BANKSEL TMR0        
+005E   0181           00198         CLRF    TMR0           ; Clear Timer0
+                      00199 
+                      00200     
+005F   2???           00201     GOTO    sendDataToAuxiliary             ; send num1 and num2_unit to auxiliary CPU
+0060                  00202 backFromSend:
+0060   2???           00203     GOTO    calculateSecondMultiplication   ; multiply num1 by num2_tens 
+0061                  00204 backFromMult:
+0061   2???           00205     GOTO    getDataFromAuxiliary            ; get the 3 digits result from auxiliary CPU
+0062                  00206 backFromGet:
+0062   2???           00207     GOTO    calculateFinalResult            ; calculate the final result  
+0063                  00208 backFromFinal:
+                      00209 
+0063   0009           00210     RETFIE
                       00211 
-                      00212     ; make the cursor pointing to the current digit
-0067   10F4           00213     BCF     Select,RS   ; Select command mode
-0068   0837           00214     MOVF    position, W
-0069   2???           00215     CALL    send
-006A   2???           00216     CALL    resetTimer0            ; Reset Timer0
-                      00217 
-                      00218 
-006B                  00219 skip:
-006B   1283 1303      00220     BANKSEL INTCON
-006D   178B           00221     BSF     INTCON, GIE     ; enable global interrupt
-006E   110B           00222     BCF     INTCON, T0IF    ; Clear TMR0 overflow flag
-006F   1283 1303      00223     BANKSEL TMR0        
-0071   0181           00224         CLRF    TMR0           ; Clear Timer0
-                      00225     
-0072   0009           00226     RETFIE              ; Return from interrupt
+                      00212 ;--------------------------------------------------------------------------------------------
+                      00213 
+0064                  00214 resetCurrentDigit:
+0064   1283 1303      00215     BANKSEL PORTD               ; Select bank 0
+0066   01B0           00216     CLRF    current_digit      ; Reset the current digit to 0
+0067   14F4           00217     BSF     Select,RS   ; Select data mode
+0068   3030           00218     MOVLW       '0'         ; print the current digit
+0069   2???           00219     CALL        send
+                      00220 
+                      00221     ; make the cursor pointing to the current digit
+006A   10F4           00222     BCF     Select,RS   ; Select command mode
+006B   0837           00223     MOVF    position, W
+006C   2???           00224     CALL    send
+006D   2???           00225     CALL    resetTimer0            ; Reset Timer0
+                      00226 
                       00227 
-                      00228 
-                      00229 
-                      00230 
-                      00231 
+006E                  00228 skip:
+006E   1283 1303      00229     BANKSEL INTCON
+0070   178B           00230     BSF     INTCON, GIE     ; enable global interrupt
+0071   110B           00231     BCF     INTCON, T0IF    ; Clear TMR0 overflow flag
+0072   1283 1303      00232     BANKSEL TMR0        
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0074   0181           00233         CLRF    TMR0           ; Clear Timer0
+                      00234     
+0075   0009           00235     RETFIE              ; Return from interrupt
+                      00236 
+                      00237 
+                      00238 
+                      00239 
+                      00240 
 Warning[205]: Found directive in column 1. (INCLUDE)
-                      00232 INCLUDE "LCDIS.INC"     ; Include the LCD driver file
+                      00241 INCLUDE "LCDIS.INC"     ; Include the LCD driver file
                       00001 ;--------------------------------------------------------------
                       00002 ;       LCDIS.INC               MPB     19-12-05
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  6
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
                       00003 ;
                       00004 ;       Include file to operate 16x2 LCD display
                       00005 ;       Uses GPR 70 - 75
@@ -320,675 +332,750 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00021 ;--------------------------------------------------------------
                       00022 ;       1ms delay with 1us cycle time (1000 cycles)
                       00023 ;--------------------------------------------------------------
-0073   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
-0074   00F0           00025         MOVWF   Timer1          ; Load count
-0075   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
+0076   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
+0077   00F0           00025         MOVWF   Timer1          ; Load count
+0078   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
 Message[305]: Using default destination of 1 (file).
-0076   0BF0           00027         DECFSZ  Timer1          ; Count
-0077   2???           00028         GOTO    loop1           ; until Z
-0078   0008           00029         RETURN                  ; and finish
+0079   0BF0           00027         DECFSZ  Timer1          ; Count
+007A   2???           00028         GOTO    loop1           ; until Z
+007B   0008           00029         RETURN                  ; and finish
                       00030 
                       00031 ;--------------------------------------------------------------
                       00032 ;       Delay Xms
                       00033 ;       Receives count in W, uses Onems
                       00034 ;--------------------------------------------------------------
-0079   00F1           00035 xms     MOVWF   TimerX          ; Count for X ms
-007A   2???           00036 loopX   CALL    onems           ; Delay 1ms
+007C   00F1           00035 xms     MOVWF   TimerX          ; Count for X ms
+007D   2???           00036 loopX   CALL    onems           ; Delay 1ms
 Message[305]: Using default destination of 1 (file).
-007B   0BF1           00037         DECFSZ  TimerX          ; Repeat X times 
-007C   2???           00038         GOTO    loopX           ; until Z
-007D   0008           00039         RETURN                  ; and finish
+007E   0BF1           00037         DECFSZ  TimerX          ; Repeat X times 
+007F   2???           00038         GOTO    loopX           ; until Z
+0080   0008           00039         RETURN                  ; and finish
                       00040 
                       00041 ;--------------------------------------------------------------
-                      00042 ;       Delay 1 seconds (1000ms) 
-                      00043 ;       Uses xms
-                      00044 ;--------------------------------------------------------------
-                      00045 ; nested loop of xms since the maximum number can be in W is 255
-007E   30FA           00046 onesecond       MOVLW   D'250'          ; Count for 1 second
-007F   2???           00047         CALL    xms                     ; Delay 1 second
-0080   30FA           00048         MOVLW   D'250'          ; Count for 1 second
-0081   2???           00049         CALL    xms                     ; Delay 1 second
-0082   30FA           00050         MOVLW   D'250'          ; Count for 1 second
-0083   2???           00051         CALL    xms                     ; Delay 1 second
-0084   30FA           00052         MOVLW   D'250'          ; Count for 1 second
-0085   2???           00053         CALL    xms                     ; Delay 1 second
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  7
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0086   0008           00054         RETURN                          ; and finish
+                      00042 ;       Delay 1 seconds (1000ms) 
+                      00043 ;       Uses xms
+                      00044 ;--------------------------------------------------------------
+                      00045 ; nested loop of xms since the maximum number can be in W is 255
+0081   30FA           00046 onesecond       MOVLW   D'250'          ; Count for 1 second
+0082   2???           00047         CALL    xms                     ; Delay 1 second
+0083   30FA           00048         MOVLW   D'250'          ; Count for 1 second
+0084   2???           00049         CALL    xms                     ; Delay 1 second
+0085   30FA           00050         MOVLW   D'250'          ; Count for 1 second
+0086   2???           00051         CALL    xms                     ; Delay 1 second
+0087   30FA           00052         MOVLW   D'250'          ; Count for 1 second
+0088   2???           00053         CALL    xms                     ; Delay 1 second
+0089   0008           00054         RETURN                          ; and finish
                       00055 
                       00056 ;--------------------------------------------------------------
                       00057 ;       xsecond delay
                       00058 ;       Receives count in W, uses onesecond
                       00059 ;--------------------------------------------------------------
-0087   00F2           00060 xseconds        MOVWF   Var             ; Store count
-0088   2???           00061 loopx   CALL    onesecond       ; Delay 1 second
+008A   00F2           00060 xseconds        MOVWF   Var             ; Store count
+008B   2???           00061 loopx   CALL    onesecond       ; Delay 1 second
 Message[305]: Using default destination of 1 (file).
-0089   0BF2           00062         DECFSZ  Var                     ; Repeat count times
-008A   2???           00063         GOTO    loopx           ; until Z
-008B   0008           00064         RETURN                          ; and finish
+008C   0BF2           00062         DECFSZ  Var                     ; Repeat count times
+008D   2???           00063         GOTO    loopx           ; until Z
+008E   0008           00064         RETURN                          ; and finish
                       00065 
                       00066 ;--------------------------------------------------------------
                       00067 ;       Generate data/command clock siganl E
                       00068 ;--------------------------------------------------------------
-008C   1508           00069 pulseE  BSF     PORTD,E         ; Set E high
-008D   2???           00070         CALL    onems           ; Delay 1ms
-008E   1108           00071         BCF     PORTD,E         ; Reset E low
-008F   2???           00072         CALL    onems           ; Delay 1ms
-0090   0008           00073         RETURN                  ; done
+008F   1508           00069 pulseE  BSF     PORTD,E         ; Set E high
+0090   2???           00070         CALL    onems           ; Delay 1ms
+0091   1108           00071         BCF     PORTD,E         ; Reset E low
+0092   2???           00072         CALL    onems           ; Delay 1ms
+0093   0008           00073         RETURN                  ; done
                       00074 
                       00075 ;--------------------------------------------------------------
                       00076 ;       Send a command byte in two nibbles from RB4 - RB7
                       00077 ;       Receives command in W, uses PulseE and Onems
                       00078 ;--------------------------------------------------------------
-0091   00F5           00079 send    MOVWF   OutCod          ; Store output code
-0092   39F0           00080         ANDLW   0F0             ; Clear low nybble
-0093   0088           00081         MOVWF   PORTD           ; Output high nybble
-0094   18F4           00082         BTFSC   Select,RS       ; Test RS bit
-0095   1488           00083         BSF     PORTD,RS        ; and set for data
-0096   2???           00084         CALL    pulseE          ; and clock display register
+0094   00F5           00079 send    MOVWF   OutCod          ; Store output code
+0095   39F0           00080         ANDLW   0F0             ; Clear low nybble
+0096   0088           00081         MOVWF   PORTD           ; Output high nybble
+0097   18F4           00082         BTFSC   Select,RS       ; Test RS bit
+0098   1488           00083         BSF     PORTD,RS        ; and set for data
+0099   2???           00084         CALL    pulseE          ; and clock display register
                       00085         ;CALL   onems           ; wait 1ms for display
                       00086 
 Message[305]: Using default destination of 1 (file).
-0097   0EF5           00087         SWAPF   OutCod          ; Swap low and high nybbles 
-0098   0875           00088         MOVF    OutCod,W        ; Retrieve output code
-0099   39F0           00089         ANDLW   0F0             ; Clear low nybble
-009A   0088           00090         MOVWF   PORTD           ; Output low nybble
-009B   18F4           00091         BTFSC   Select,RS       ; Test RS bit
-009C   1488           00092         BSF     PORTD,RS        ; and set for data
-009D   2???           00093         CALL    pulseE          ; and clock display register
+009A   0EF5           00087         SWAPF   OutCod          ; Swap low and high nybbles 
+009B   0875           00088         MOVF    OutCod,W        ; Retrieve output code
+009C   39F0           00089         ANDLW   0F0             ; Clear low nybble
+009D   0088           00090         MOVWF   PORTD           ; Output low nybble
+009E   18F4           00091         BTFSC   Select,RS       ; Test RS bit
+009F   1488           00092         BSF     PORTD,RS        ; and set for data
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00A0   2???           00093         CALL    pulseE          ; and clock display register
                       00094         ;CALL   onems           ; wait 1ms for display
-009E   0008           00095         RETURN                  ; done
+00A1   0008           00095         RETURN                  ; done
                       00096 
                       00097 ;--------------------------------------------------------------
                       00098 ;       Initialise the display
                       00099 ;       Uses Send
                       00100 ;--------------------------------------------------------------
-009F   3064           00101 inid    MOVLW   D'100'          ; Load count for 100ms delay
-00A0   2???           00102         CALL    xms             ; and wait for display start
-00A1   30F0           00103         MOVLW   0F0             ; Mask for select code
-00A2   00F4           00104         MOVWF   Select          ; High nybble not masked
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  8
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
+00A2   3064           00101 inid    MOVLW   D'100'          ; Load count for 100ms delay
+00A3   2???           00102         CALL    xms             ; and wait for display start
+00A4   30F0           00103         MOVLW   0F0             ; Mask for select code
+00A5   00F4           00104         MOVWF   Select          ; High nybble not masked
                       00105 
-00A3   3030           00106         MOVLW   0x30            ; Load initial nibble
-00A4   0088           00107         MOVWF   PORTD           ; and output it to display
-00A5   2???           00108         CALL    pulseE          ; Latch initial code
-00A6   3005           00109         MOVLW   D'5'            ; Set delay 5ms
-00A7   2???           00110         CALL    xms             ; and wait
-00A8   2???           00111         CALL    pulseE          ; Latch initial code again
-00A9   2???           00112         CALL    onems           ; Wait 1ms
-00AA   2???           00113         CALL    pulseE          ; Latch initial code again
-00AB   1208           00114         BCF     PORTD,4         ; Set 4-bit mode
-00AC   2???           00115         CALL    pulseE          ; Latch it
+00A6   3030           00106         MOVLW   0x30            ; Load initial nibble
+00A7   0088           00107         MOVWF   PORTD           ; and output it to display
+00A8   2???           00108         CALL    pulseE          ; Latch initial code
+00A9   3005           00109         MOVLW   D'5'            ; Set delay 5ms
+00AA   2???           00110         CALL    xms             ; and wait
+00AB   2???           00111         CALL    pulseE          ; Latch initial code again
+00AC   2???           00112         CALL    onems           ; Wait 1ms
+00AD   2???           00113         CALL    pulseE          ; Latch initial code again
+00AE   1208           00114         BCF     PORTD,4         ; Set 4-bit mode
+00AF   2???           00115         CALL    pulseE          ; Latch it
                       00116         
-00AD   3028           00117         MOVLW   0x28            ; Set 4-bit mode, 2 lines
-00AE   2???           00118         CALL    send            ; and send code
-00AF   3008           00119         MOVLW   0x08            ; Switch off display
-00B0   2???           00120         CALL    send            ; and send code
-00B1   3001           00121         MOVLW   0x01            ; Code to clear display
-00B2   2???           00122         CALL    send            ; and send code
-00B3   3006           00123         MOVLW   0x06            ; Enable cursor auto inc  
-00B4   2???           00124         CALL    send            ; and send code
-00B5   3080           00125         MOVLW   0x80            ; Zero display address
-00B6   2???           00126         CALL    send            ; and send code
-00B7   300C           00127         MOVLW   0x0C            ; Turn on display  
-00B8   2???           00128         CALL    send            ; and send code
+00B0   3028           00117         MOVLW   0x28            ; Set 4-bit mode, 2 lines
+00B1   2???           00118         CALL    send            ; and send code
+00B2   3008           00119         MOVLW   0x08            ; Switch off display
+00B3   2???           00120         CALL    send            ; and send code
+00B4   3001           00121         MOVLW   0x01            ; Code to clear display
+00B5   2???           00122         CALL    send            ; and send code
+00B6   3006           00123         MOVLW   0x06            ; Enable cursor auto inc  
+00B7   2???           00124         CALL    send            ; and send code
+00B8   3080           00125         MOVLW   0x80            ; Zero display address
+00B9   2???           00126         CALL    send            ; and send code
+00BA   300C           00127         MOVLW   0x0C            ; Turn on display  
+00BB   2???           00128         CALL    send            ; and send code
                       00129 
-00B9   0008           00130         RETURN                  ; Done
+00BC   0008           00130         RETURN                  ; Done
                       00131 
                       00132 ;--------------------------------------------------------------
-                      00233 ; Initialize the system ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-00BA                  00234 init:
-                      00235     
-00BA   1683 1303      00236     BANKSEL     TRISB           ; Select bank 1
+                      00242 
+                      00243 ; Initialize the system ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+00BD                  00244 init:
+                      00245     
+00BD   1683 1303      00246     BANKSEL     TRISB           ; Select bank 1
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00BC   1406           00237     BSF TRISB, TRISB0
+00BF   1406           00247     BSF TRISB, TRISB0
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00BD   0188           00238         CLRF    TRISD           ; LCD output port
-                      00239 
-00BE   1283 1303      00240         BANKSEL PORTD           ; Select bank 0
-00C0   3001           00241         MOVLW   0x01
-00C1   0188           00242         CLRF    PORTD           ; Clear display outputs
-                      00243 
-00C2   2???           00244     CALL    inid        ; Initialize LCD
-                      00245 
-00C3   3005           00246     MOVLW    0x05        ; number of times to blink
-00C4   00B1           00247     MOVWF    count
-                      00248 
-                      00249     
-00C5   2???           00250         GOTO    start           ; Jump to main program
+00C0   0188           00248         CLRF    TRISD           ; LCD output port
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00C1   0187           00249     CLRF        TRISC       ; portc is output
+                      00250 
                       00251 
-                      00252 
-                      00253     
-                      00254 ; Main program ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-00C6                  00255 start:
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE  9
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE  9
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-00C6   1283 1303      00256     BANKSEL PORTD               ; Select bank 0
-00C8   0BB1           00257     DECFSZ  count, 1    ; Decrement the counter and skip if zero
-00C9   2???           00258     GOTO   printWelcome ; make the print welcome blinking 3 times with 1 second delay
-                      00259 
-00CA   3003           00260     MOVLW       0x03       ; wait for 3 seconds
-00CB   2???           00261     CALL        xseconds
-                      00262 
-00CC   2???           00263     CALL    clearDisplay    ; Clear the display and return the cursor to the home position
+00C2   1283 1303      00252         BANKSEL PORTD           ; Select bank 0
+00C4   3001           00253         MOVLW   0x01
+00C5   0188           00254         CLRF    PORTD           ; Clear display outputs
+                      00255 
+00C6   30FF           00256     MOVLW   0xFF
+00C7   0087           00257     MOVWF   PORTC
+                      00258 
+00C8   2???           00259     CALL    inid        ; Initialize LCD
+                      00260 
+00C9   3005           00261     MOVLW    0x05        ; number of times to blink
+00CA   00B1           00262     MOVWF    count
+                      00263 
                       00264     
-00CD   2???           00265     CALL    printNumber1     ; print "Number 1" on the LCD
-                      00266     
-00CE   2???           00267     CALL    initInterrupts  ; Initialize the interrupts and Timer0
-00CF   2???           00268     CALL    resetTimer0     ; Reset Timer0
-                      00269 
-                      00270     
-                      00271 
-                      00272 
-                      00273  
+00CB   2???           00265         GOTO    start           ; Jump to main program
+                      00266 
+                      00267 
+                      00268     
+                      00269 ; Main program ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+00CC                  00270 start:
+00CC   1283 1303      00271     BANKSEL PORTD               ; Select bank 0
+00CE   0BB1           00272     DECFSZ  count, 1    ; Decrement the counter and skip if zero
+00CF   2???           00273     GOTO   printWelcome ; make the print welcome blinking 3 times with 1 second delay
                       00274 
-00D0                  00275 loop
-00D0   2???           00276     GOTO loop
+00D0   3003           00275     MOVLW       0x03       ; wait for 3 seconds
+00D1   2???           00276     CALL        xseconds
                       00277 
-                      00278 
-                      00279 ; Subroutines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00280 
-                      00281 ; Reset the system
-00D1                  00282 resetSystem:
-00D1   1283 1303      00283     BANKSEL PORTD               ; Select bank 0
-00D3   10F4           00284     BCF    Select,RS    ; Select command mode
-00D4   3001           00285     MOVLW    0x01           ; clear display
-00D5   2???           00286     CALL    send            ; and send code
-00D6   3080           00287     MOVLW       0x80        ; position to home cursor
-00D7   2???           00288     CALL        send        ; and send code
+00D2   2???           00278     CALL    clearDisplay    ; Clear the display and return the cursor to the home position
+                      00279     
+00D3   2???           00280     CALL    printNumber1     ; print "Number 1" on the LCD
+                      00281     
+00D4   2???           00282     CALL    initInterrupts  ; Initialize the interrupts and Timer0
+00D5   2???           00283     CALL    resetTimer0     ; Reset Timer0
+                      00284 
+                      00285     
+                      00286 
+                      00287 
+                      00288  
                       00289 
-00D8   2???           00290     CALL    printNumber1 ; print "Number 1" on the LCD
-                      00291 
-                      00292     ; initialize the interrupts
-00D9   2???           00293     CALL    initInterrupts
-00DA   2???           00294     CALL    resetTimer0
+00D6                  00290 loop
+00D6   2???           00291     GOTO loop
+                      00292 
+                      00293 
+                      00294 ; Subroutines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00295 
-00DB   0008           00296     RETURN
-                      00297 
-                      00298     
-                      00299 
-                      00300 ; Clear the display and return the cursor to the home position
-00DC                  00301 clearDisplay:
-00DC   1283 1303      00302     BANKSEL PORTD               ; Select bank 0
-00DE   10F4           00303     BCF     Select, RS       ; Select command mode
-00DF   3001           00304     MOVLW    0x01           ; clear display
-00E0   2???           00305     CALL    send            ; and send code
-00E1   3080           00306     MOVLW       0x80        ; position to home cursor
-00E2   2???           00307     CALL        send        ; and send code 
-00E3   0008           00308     RETURN
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 10
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
-                      00309 
-                      00310 ; Initialize the interrupts and Timer0
-00E4                  00311 initInterrupts:
-00E4   1283 1303      00312     BANKSEL INTCON
-00E6   178B           00313     BSF INTCON, GIE     ; Enable global interrupt
-00E7   160B           00314     BSF INTCON, INTE   ; Enable external interrupt on RB0 pin
-00E8   168B           00315     BSF INTCON, TMR0IE  ; Enable Timer0 interrupt
-                      00316 
-                      00317     ; Initialize Timer0
-00E9   1683 1303      00318     BANKSEL OPTION_REG
-00EB   3007           00319     MOVLW b'00000111'   ; Set Timer0 prescaler to 1:256
+                      00296 ; Reset the system
+00D7                  00297 resetSystem:
+00D7   1683 1303      00298     BANKSEL TRISC
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00EC   0081           00320     MOVWF OPTION_REG 
-                      00321 
-00ED   0008           00322     RETURN
-                      00323 
-                      00324 
-00EE                  00325 resetTimer0:
-00EE   1283 1303      00326         BANKSEL PORTA
-00F0   301E           00327         MOVLW D'30'
-00F1   00B6           00328         MOVWF timerCounter
-00F2   150B           00329         BSF INTCON, T0IF    ; Clear the TMR0 overflow interrupt flag
-00F3   0008           00330         RETURN
-                      00331 
-                      00332 ; Write "Number 1" in the first line and make the cursor blinking on the second line
-00F4                  00333 printNumber1:
-00F4   1283 1303      00334     BANKSEL PORTD               ; Select bank 0
-00F6   14F4           00335     BSF    Select,RS    ; Select data mode
-00F7   304E           00336     MOVLW       'N'
-00F8   2???           00337     CALL        send
-00F9   3075           00338     MOVLW       'u'
-00FA   2???           00339     CALL        send
-00FB   306D           00340     MOVLW       'm'
-00FC   2???           00341     CALL        send
-00FD   3062           00342     MOVLW       'b'
-00FE   2???           00343     CALL        send
-00FF   3065           00344     MOVLW       'e'
-0100   2???           00345     CALL        send
-0101   3072           00346     MOVLW       'r'
-0102   2???           00347     CALL        send
-0103   3020           00348     MOVLW       ' '
-0104   2???           00349     CALL        send
-0105   3031           00350     MOVLW       '1'
-0106   2???           00351     CALL        send
+00D9   0187           00299     CLRF    TRISC       ; portc is output
+                      00300 
+00DA   1283 1303      00301     BANKSEL PORTD               ; Select bank 0
+00DC   30FF           00302     MOVLW    0xFF
+00DD   0087           00303     MOVWF    PORTC
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00304 
+00DE   10F4           00305     BCF    Select,RS    ; Select command mode
+00DF   3001           00306     MOVLW    0x01           ; clear display
+00E0   2???           00307     CALL    send            ; and send code
+00E1   3080           00308     MOVLW       0x80        ; position to home cursor
+00E2   2???           00309     CALL        send        ; and send code
+                      00310 
+00E3   2???           00311     CALL    printNumber1 ; print "Number 1" on the LCD
+                      00312 
+                      00313     ; initialize the interrupts
+00E4   2???           00314     CALL    initInterrupts
+00E5   2???           00315     CALL    resetTimer0
+                      00316 
+00E6   0008           00317     RETURN
+                      00318 
+                      00319     
+                      00320 
+                      00321 ; Clear the display and return the cursor to the home position
+00E7                  00322 clearDisplay:
+00E7   1283 1303      00323     BANKSEL PORTD               ; Select bank 0
+00E9   10F4           00324     BCF     Select, RS       ; Select command mode
+00EA   3001           00325     MOVLW    0x01           ; clear display
+00EB   2???           00326     CALL    send            ; and send code
+00EC   3080           00327     MOVLW       0x80        ; position to home cursor
+00ED   2???           00328     CALL        send        ; and send code 
+00EE   0008           00329     RETURN
+                      00330 
+                      00331 ; Initialize the interrupts and Timer0
+00EF                  00332 initInterrupts:
+00EF   1283 1303      00333     BANKSEL INTCON
+00F1   178B           00334     BSF INTCON, GIE     ; Enable global interrupt
+00F2   160B           00335     BSF INTCON, INTE   ; Enable external interrupt on RB0 pin
+00F3   168B           00336     BSF INTCON, TMR0IE  ; Enable Timer0 interrupt
+                      00337 
+                      00338     ; Initialize Timer0
+00F4   1683 1303      00339     BANKSEL OPTION_REG
+00F6   3007           00340     MOVLW b'00000111'   ; Set Timer0 prescaler to 1:256
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00F7   0081           00341     MOVWF OPTION_REG 
+                      00342 
+00F8   0008           00343     RETURN
+                      00344 
+                      00345 
+00F9                  00346 resetTimer0:
+00F9   1283 1303      00347         BANKSEL PORTA
+00FB   301E           00348         MOVLW D'30'
+00FC   00B6           00349         MOVWF timerCounter
+00FD   150B           00350         BSF INTCON, T0IF    ; Clear the TMR0 overflow interrupt flag
+00FE   0008           00351         RETURN
                       00352 
-                      00353 
-                      00354     ; move cursor to the second line
-0107   10F4           00355     BCF     Select,RS   ; Select command mode
-0108   30C0           00356     MOVLW       0xC0        ; position to home cursor
-0109   00B7           00357     MOVWF   position    ; store the cursor position
-010A   2???           00358     CALL        send        ; and send code
-                      00359 
-010B   3000           00360     MOVLW    0x00       ; current digit
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 11
+                      00353 ; Write "Number 1" in the first line and make the cursor blinking on the second line
+00FF                  00354 printNumber1:
+00FF   1283 1303      00355     BANKSEL PORTD               ; Select bank 0
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 11
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-010C   00B0           00361     MOVWF    current_digit
-                      00362     
-010D   14F4           00363     BSF     Select,RS   ; Select data mode
-010E   3030           00364     MOVLW    '0'        ; print the current digit
-010F   2???           00365     CALL    send
-                      00366 
-                      00367     ; make the cursor pointing to the current digit
-0110   10F4           00368     BCF     Select,RS   ; Select command mode
-0111   0837           00369     MOVF    position, W
-0112   2???           00370     CALL    send
-                      00371 
-                      00372     ; make the cursor blinking
-0113   300F           00373     MOVLW       0x0F
-0114   2???           00374     CALL        send
-                      00375 
-                      00376     ; set the state to 1
-0115   3001           00377     MOVLW    0x01
-0116   00B8           00378     MOVWF    state
-                      00379     
-0117   0008           00380     RETURN
-                      00381 
-                      00382 ; Write "2" instead of "1" in the first line and make the cursor blinking on the second line
-0118                  00383 printNumber2:
-0118   1283 1303      00384     BANKSEL PORTD               ; Select bank 0
-011A   10F4           00385     BCF    Select,RS    ; Select command mode
-011B   3087           00386     MOVLW       0x87        ;position the cursor to 8th position in the first line
-011C   2???           00387     CALL        send        ; and send code
-                      00388 
-011D   14F4           00389     BSF    Select,RS    ; Select data mode
-011E   3032           00390     MOVLW       '2'
-011F   2???           00391     CALL        send
+0101   14F4           00356     BSF    Select,RS    ; Select data mode
+0102   304E           00357     MOVLW       'N'
+0103   2???           00358     CALL        send
+0104   3075           00359     MOVLW       'u'
+0105   2???           00360     CALL        send
+0106   306D           00361     MOVLW       'm'
+0107   2???           00362     CALL        send
+0108   3062           00363     MOVLW       'b'
+0109   2???           00364     CALL        send
+010A   3065           00365     MOVLW       'e'
+010B   2???           00366     CALL        send
+010C   3072           00367     MOVLW       'r'
+010D   2???           00368     CALL        send
+010E   3020           00369     MOVLW       ' '
+010F   2???           00370     CALL        send
+0110   3031           00371     MOVLW       '1'
+0111   2???           00372     CALL        send
+                      00373 
+                      00374 
+                      00375     ; move cursor to the second line
+0112   10F4           00376     BCF     Select,RS   ; Select command mode
+0113   30C0           00377     MOVLW       0xC0        ; position to home cursor
+0114   00B7           00378     MOVWF   position    ; store the cursor position
+0115   2???           00379     CALL        send        ; and send code
+                      00380 
+0116   3000           00381     MOVLW    0x00       ; current digit
+0117   00B0           00382     MOVWF    current_digit
+                      00383     
+0118   14F4           00384     BSF     Select,RS   ; Select data mode
+0119   3030           00385     MOVLW    '0'        ; print the current digit
+011A   2???           00386     CALL    send
+                      00387 
+                      00388     ; make the cursor pointing to the current digit
+011B   10F4           00389     BCF     Select,RS   ; Select command mode
+011C   0837           00390     MOVF    position, W
+011D   2???           00391     CALL    send
                       00392 
-                      00393     ; return the cursor back to the second line to enter the second number
-0120   10F4           00394     BCF     Select,RS   ; Select command mode
-0121   0837           00395     MOVF    position, W ; move the cursor to previous position
-0122   2???           00396     CALL    send
-                      00397 
-0123   0008           00398     RETURN
-                      00399 
-                      00400 ; Write "Result" in the first line
-0124                  00401 printResult:
-0124   1283 1303      00402     BANKSEL PORTD               ; Select bank 0
-0126   10F4           00403     BCF    Select,RS    ; Select command mode
-0127   3080           00404     MOVLW       0x80        ;position the cursor to the first position in the first line
-0128   2???           00405     CALL        send        ; and send code
-                      00406 
-0129   14F4           00407     BSF    Select,RS    ; Select data mode
-012A   3052           00408     MOVLW       'R'
-012B   2???           00409     CALL        send
-012C   3065           00410     MOVLW       'e'
-012D   2???           00411     CALL        send
-012E   3073           00412     MOVLW       's'
-012F   2???           00413     CALL        send
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 12
+                      00393     ; make the cursor blinking
+011E   300F           00394     MOVLW       0x0F
+011F   2???           00395     CALL        send
+                      00396 
+                      00397     ; set the state to 1
+0120   3001           00398     MOVLW    0x01
+0121   00B8           00399     MOVWF    state
+                      00400     
+0122   0008           00401     RETURN
+                      00402 
+                      00403 ; Write "2" instead of "1" in the first line and make the cursor blinking on the second line
+0123                  00404 printNumber2:
+0123   1283 1303      00405     BANKSEL PORTD               ; Select bank 0
+0125   10F4           00406     BCF    Select,RS    ; Select command mode
+0126   3087           00407     MOVLW       0x87        ;position the cursor to 8th position in the first line
+0127   2???           00408     CALL        send        ; and send code
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 12
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0130   3075           00414     MOVLW       'u'
-0131   2???           00415     CALL        send
-0132   306C           00416     MOVLW       'l'
-0133   2???           00417     CALL        send
-0134   3074           00418     MOVLW       't'
-0135   2???           00419     CALL        send
-0136   3020           00420     MOVLW    ' '
-0137   2???           00421     CALL    send
-0138   3020           00422     MOVLW    ' '
-0139   2???           00423     CALL    send
-                      00424 
-                      00425     ; return the cursor back to the second line to print the result
-013A   10F4           00426     BCF     Select,RS   ; Select command mode
-013B   30C6           00427     MOVLW       0xC6        ;position the cursor to the 7th position in the second line
-013C   2???           00428     CALL        send        ; and send code
-                      00429     
-013D   0008           00430     RETURN
-                      00431 
-                      00432 
-                      00433 ; print welcome message on the LCD
-013E                  00434 printWelcome:
-                      00435     ; clear the display
-013E   10F4           00436     BCF     Select, RS       ; Select command mode
-013F   3001           00437     MOVLW    0x01           ; clear display
-0140   2???           00438     CALL    send            ; and send code
-0141   3080           00439     MOVLW       0x80        ; position to home cursor
-0142   2???           00440         CALL    send        ; and send code 
-0143   14F4           00441     BSF    Select,RS    ; Select data mode
-                      00442 
-                      00443     ; delay for 400ms to make the print blinking
+                      00409 
+0128   14F4           00410     BSF    Select,RS    ; Select data mode
+0129   3032           00411     MOVLW       '2'
+012A   2???           00412     CALL        send
+                      00413 
+                      00414     ; return the cursor back to the second line to enter the second number
+012B   10F4           00415     BCF     Select,RS   ; Select command mode
+012C   0837           00416     MOVF    position, W ; move the cursor to previous position
+012D   2???           00417     CALL    send
+                      00418 
+012E   0008           00419     RETURN
+                      00420 
+                      00421 ; Write "Result" in the first line
+012F                  00422 printResult:
+012F   1283 1303      00423     BANKSEL PORTD               ; Select bank 0
+0131   10F4           00424     BCF    Select,RS    ; Select command mode
+0132   3080           00425     MOVLW       0x80        ;position the cursor to the first position in the first line
+0133   2???           00426     CALL        send        ; and send code
+                      00427 
+0134   14F4           00428     BSF    Select,RS    ; Select data mode
+0135   3052           00429     MOVLW       'R'
+0136   2???           00430     CALL        send
+0137   3065           00431     MOVLW       'e'
+0138   2???           00432     CALL        send
+0139   3073           00433     MOVLW       's'
+013A   2???           00434     CALL        send
+013B   3075           00435     MOVLW       'u'
+013C   2???           00436     CALL        send
+013D   306C           00437     MOVLW       'l'
+013E   2???           00438     CALL        send
+013F   3074           00439     MOVLW       't'
+0140   2???           00440     CALL        send
+0141   3020           00441     MOVLW    ' '
+0142   2???           00442     CALL    send
+0143   3020           00443     MOVLW    ' '
+0144   2???           00444     CALL    send
+                      00445 
+                      00446     ; return the cursor back to the second line to print the result
+0145   10F4           00447     BCF     Select,RS   ; Select command mode
+0146   30C6           00448     MOVLW       0xC6        ;position the cursor to the 7th position in the second line
+0147   2???           00449     CALL        send        ; and send code
+                      00450     
+0148   0008           00451     RETURN
+                      00452 
+                      00453 
+                      00454 ; print welcome message on the LCD
+0149                  00455 printWelcome:
+                      00456     ; clear the display
+0149   10F4           00457     BCF     Select, RS       ; Select command mode
+014A   3001           00458     MOVLW    0x01           ; clear display
+014B   2???           00459     CALL    send            ; and send code
+014C   3080           00460     MOVLW       0x80        ; position to home cursor
+014D   2???           00461         CALL    send        ; and send code 
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+014E   14F4           00462     BSF    Select,RS    ; Select data mode
+                      00463 
+                      00464     ; delay for 400ms to make the print blinking
 Warning[202]: Argument out of range.  Least significant bits used.
-0144   3090           00444     MOVLW   D'400'
-0145   2???           00445     CALL    xms
-                      00446 
-                      00447     ; print "Welcome to" in the first line
-0146   3057           00448     MOVLW       'W'             
-0147   2???           00449     CALL        send            ; and send code
-0148   3065           00450     MOVLW       'e'
-0149   2???           00451     CALL        send
-014A   306C           00452     MOVLW       'l'
-014B   2???           00453     CALL        send
-014C   3063           00454     MOVLW       'c'
-014D   2???           00455     CALL        send
-014E   306F           00456     MOVLW       'o'
-014F   2???           00457     CALL        send
-0150   306D           00458     MOVLW       'm'
-0151   2???           00459     CALL        send
-0152   3065           00460     MOVLW       'e'
-0153   2???           00461     CALL        send
-0154   3020           00462     MOVLW       ' '
-0155   2???           00463     CALL        send
-0156   3074           00464     MOVLW       't'
-0157   2???           00465     CALL        send
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 13
+014F   3090           00465     MOVLW   D'400'
+0150   2???           00466     CALL    xms
+                      00467 
+                      00468     ; print "Welcome to" in the first line
+0151   3057           00469     MOVLW       'W'             
+0152   2???           00470     CALL        send            ; and send code
+0153   3065           00471     MOVLW       'e'
+0154   2???           00472     CALL        send
+0155   306C           00473     MOVLW       'l'
+0156   2???           00474     CALL        send
+0157   3063           00475     MOVLW       'c'
+0158   2???           00476     CALL        send
+0159   306F           00477     MOVLW       'o'
+015A   2???           00478     CALL        send
+015B   306D           00479     MOVLW       'm'
+015C   2???           00480     CALL        send
+015D   3065           00481     MOVLW       'e'
+015E   2???           00482     CALL        send
+015F   3020           00483     MOVLW       ' '
+0160   2???           00484     CALL        send
+0161   3074           00485     MOVLW       't'
+0162   2???           00486     CALL        send
+0163   306F           00487     MOVLW       'o'
+0164   2???           00488     CALL        send
+                      00489 
+                      00490     ; move cursor to the second line
+0165   10F4           00491     BCF     Select,RS   ; Select command mode
+0166   30C0           00492     MOVLW       0xC0        ; position to home cursor
+0167   2???           00493     CALL        send        ; and send code
+0168   14F4           00494     BSF     Select,RS   ; Select data mode
+                      00495     ; print "multiplication" in the second line
+0169   306D           00496     MOVLW       'm'
+016A   2???           00497     CALL        send
+016B   3075           00498     MOVLW       'u'
+016C   2???           00499     CALL        send
+016D   306C           00500     MOVLW       'l'
+016E   2???           00501     CALL        send
+016F   3074           00502     MOVLW       't'
+0170   2???           00503     CALL        send
+0171   3069           00504     MOVLW       'i'
+0172   2???           00505     CALL        send
+0173   3070           00506     MOVLW       'p'
+0174   2???           00507     CALL        send
+0175   306C           00508     MOVLW       'l'
+0176   2???           00509     CALL        send
+0177   3069           00510     MOVLW       'i'
+0178   2???           00511     CALL        send
+0179   3063           00512     MOVLW       'c'
+017A   2???           00513     CALL        send
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 14
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0158   306F           00466     MOVLW       'o'
-0159   2???           00467     CALL        send
-                      00468 
-                      00469     ; move cursor to the second line
-015A   10F4           00470     BCF     Select,RS   ; Select command mode
-015B   30C0           00471     MOVLW       0xC0        ; position to home cursor
-015C   2???           00472     CALL        send        ; and send code
-015D   14F4           00473     BSF     Select,RS   ; Select data mode
-                      00474     ; print "multiplication" in the second line
-015E   306D           00475     MOVLW       'm'
-015F   2???           00476     CALL        send
-0160   3075           00477     MOVLW       'u'
-0161   2???           00478     CALL        send
-0162   306C           00479     MOVLW       'l'
-0163   2???           00480     CALL        send
-0164   3074           00481     MOVLW       't'
-0165   2???           00482     CALL        send
-0166   3069           00483     MOVLW       'i'
-0167   2???           00484     CALL        send
-0168   3070           00485     MOVLW       'p'
-0169   2???           00486     CALL        send
-016A   306C           00487     MOVLW       'l'
-016B   2???           00488     CALL        send
-016C   3069           00489     MOVLW       'i'
-016D   2???           00490     CALL        send
-016E   3063           00491     MOVLW       'c'
-016F   2???           00492     CALL        send
-0170   3061           00493     MOVLW       'a'
-0171   2???           00494     CALL        send
-0172   3074           00495     MOVLW       't'
-0173   2???           00496     CALL        send
-0174   3069           00497     MOVLW       'i'
-0175   2???           00498     CALL        send
-0176   306F           00499     MOVLW       'o'
-0177   2???           00500     CALL        send
-0178   306E           00501     MOVLW       'n'
-0179   2???           00502     CALL        send
-                      00503 
-                      00504     ; delay for 1 second
-017A   3001           00505     MOVLW       0x01
-017B   2???           00506     CALL        xseconds
-                      00507 
-017C   2???           00508     GOTO    start 
-                      00509 
-                      00510 
-                      00511 ; increment the current digit
-017D                  00512 incrementCurrentDigit:
-017D   1283 1303      00513     BANKSEL PORTA
-017F   0AB0           00514     INCF    current_digit, F  ; Increment the current digit
-                      00515     
-0180   300A           00516     MOVLW   0x0A
-0181   0230           00517     SUBWF   current_digit, W  ; Compare current digit with 10
-0182   1903           00518     BTFSC   STATUS, Z         ; Skip next step if current digit is less than 10
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 14
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
-0183   01B0           00519     CLRF    current_digit     ; Reset the current digit to 0 if it 10 or more
-0184   0008           00520     RETURN
-                      00521 
-                      00522 
-                      00523 ; Calculate the multiplication of the first number by the tenth digit of the second number
-0185                  00524 calculateSecondMultiplication:
-0185   1283 1303      00525     BANKSEL PORTA
-0187   01C1           00526     CLRF    res_unit
-0188   01C2           00527     CLRF    res_tens
-0189   01C3           00528     CLRF    res_hundreds
-018A   01C4           00529     CLRF    res_thousands
+017B   3061           00514     MOVLW       'a'
+017C   2???           00515     CALL        send
+017D   3074           00516     MOVLW       't'
+017E   2???           00517     CALL        send
+017F   3069           00518     MOVLW       'i'
+0180   2???           00519     CALL        send
+0181   306F           00520     MOVLW       'o'
+0182   2???           00521     CALL        send
+0183   306E           00522     MOVLW       'n'
+0184   2???           00523     CALL        send
+                      00524 
+                      00525     ; delay for 1 second
+0185   3001           00526     MOVLW       0x01
+0186   2???           00527     CALL        xseconds
+                      00528 
+0187   2???           00529     GOTO    start 
                       00530 
                       00531 
-                      00532     ; find the multiplication of num1_unit by num2_tens
-018B   1283 1303      00533     BANKSEL num1_unit
-018D   0833           00534     MOVF    num1_unit, W
-018E   00C5           00535     MOVWF   x
-018F   0834           00536     MOVF    num2_tens, W
-0190   00C6           00537     MOVWF   y
-0191   2???           00538     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
-                      00539 
-0192   1283 1303      00540     BANKSEL res_mult
-                      00541     ; add res_mult to res_tens
-0194   0847           00542     MOVF    res_mult, W
-0195   07C2           00543     ADDWF   res_tens, F
-                      00544     ; check if the number is largaer than 9
-0196   0842           00545     MOVF    res_tens, W
-0197   3C09           00546     SUBLW   0x09
-0198   1C03           00547     BTFSS   STATUS, C
-0199   2???           00548     CALL    handle_carry_tens
-                      00549 
-                      00550 
-                      00551 
-                      00552     ; add res_mult+1 to res_hundreds
-019A   0848           00553     MOVF    res_mult+1, W
-019B   07C3           00554     ADDWF   res_hundreds, F
-                      00555     ; check if the number is largaer than 9
-019C   0843           00556     MOVF    res_hundreds, W
-019D   3C09           00557     SUBLW   0x09
-019E   1C03           00558     BTFSS   STATUS, C
-019F   2???           00559     CALL    handle_carry_hundreds
-                      00560 
-                      00561 
-                      00562     ; find the multiplication of num1_tens by num2_unit
-01A0   0832           00563     MOVF    num1_tens, W
-01A1   00C5           00564     MOVWF   x
-01A2   0834           00565     MOVF    num2_tens, W
-01A3   00C6           00566     MOVWF   y
-01A4   2???           00567     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
+                      00532 ; increment the current digit
+0188                  00533 incrementCurrentDigit:
+0188   1283 1303      00534     BANKSEL PORTA
+018A   0AB0           00535     INCF    current_digit, F  ; Increment the current digit
+                      00536     
+018B   300A           00537     MOVLW   0x0A
+018C   0230           00538     SUBWF   current_digit, W  ; Compare current digit with 10
+018D   1903           00539     BTFSC   STATUS, Z         ; Skip next step if current digit is less than 10
+018E   01B0           00540     CLRF    current_digit     ; Reset the current digit to 0 if it 10 or more
+018F   0008           00541     RETURN
+                      00542 
+                      00543 ; send the num1 and num2_unit to the auxiliary CPU
+0190                  00544 sendDataToAuxiliary:
+0190   1683 1303      00545         BANKSEL TRISC
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0192   0187           00546         CLRF    TRISC       ; portc is output 
+                      00547 
+0193   1283 1303      00548     BANKSEL PORTC
+0195   0E32           00549     SWAPF   num1_tens, W ; swap the nibbles
+0196   00C5           00550     MOVWF   x           ; put num1_tens in the upper nibble
+                      00551    
+0197   0833           00552     MOVF    num1_unit, W
+0198   0445           00553     IORWF   x, W        ; put num1_unit in the lower nibble and save it in W
+                      00554 
+0199   0087           00555     MOVWF   PORTC       ; send the result to the auxiliary CPU
+                      00556 
+019A   300A           00557     MOVLW   D'10'
+019B   2???           00558     CALL    xms         ; delay for 10ms to make sure the data is sent
+                      00559 
+019C   0835           00560     MOVF    num2_unit, W
+019D   0087           00561     MOVWF   PORTC       ; send num2_unit to the auxiliary CPU
+                      00562 
+019E   300A           00563     MOVLW   D'10'
+019F   2???           00564     CALL    xms         ; delay for 10ms to make sure the data is sent
+                      00565 
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+01A0   30FF           00566     MOVLW   0xFF
+01A1   0087           00567     MOVWF   PORTC       ; clear the portc
                       00568 
-                      00569     ; add res_mult[0] to res_hundreds 
-01A5   1283 1303      00570     BANKSEL res_mult
-01A7   0847           00571     MOVF    res_mult, W
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 15
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
-01A8   07C3           00572     ADDWF   res_hundreds, F
-                      00573     ; check if the number is largaer than 9
-01A9   0843           00574     MOVF    res_hundreds, W
-01AA   3C09           00575     SUBLW   0x09
-01AB   1C03           00576     BTFSS   STATUS, C
-01AC   2???           00577     CALL    handle_carry_hundreds
-                      00578 
-                      00579 
-                      00580     ; add res_mult[1] to res_thousands
-01AD   0848           00581     MOVF    res_mult+1, W
-01AE   07C4           00582     ADDWF   res_thousands, F
-                      00583     
+01A2   2???           00569     GOTO    backFromSend
+                      00570 
+                      00571 
+01A3                  00572 getDataFromAuxiliary:
+01A3   3005           00573     MOVLW   D'5'
+01A4   2???           00574     CALL    xms  
+                      00575     ; send 0xFE to the auxiliary CPU to tell it to send the result
+01A5   1683 1303      00576     BANKSEL TRISC
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01A7   0187           00577     CLRF    TRISC       ; portc is output
+01A8   1283 1303      00578     BANKSEL PORTC
+01AA   30FE           00579     MOVLW   0xFE
+01AB   0087           00580     MOVWF   PORTC       ; send 0xFE to the auxiliary CPU
+                      00581 
+01AC   300A           00582     MOVLW   D'10'
+01AD   2???           00583     CALL    xms         ; delay for 10ms to make sure the data is sent
                       00584 
-                      00585     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00586     ; auxiliary part
-                      00587     ; find the multiplication of num1_unit by num2_unit
-01AF   1283 1303      00588     BANKSEL num1_unit
-01B1   0833           00589     MOVF    num1_unit, W
-01B2   00C5           00590     MOVWF   x
-01B3   0835           00591     MOVF    num2_unit, W
-01B4   00C6           00592     MOVWF   y
-01B5   2???           00593     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
+                      00585     ; get the result from the auxiliary CPU
+01AE   1683 1303      00586     BANKSEL TRISC
+01B0   30FF           00587     MOVLW   0xFF
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01B1   0087           00588     MOVWF   TRISC       ; portc is input
+                      00589 
+                      00590     ; get two most significant digits from the auxiliary CPU
+01B2   1283 1303      00591     BANKSEL PORTC
+01B4   0807           00592     MOVF    PORTC, W
+01B5   00D1           00593     MOVWF   aux_res_tens        ; tens in lower nibble
                       00594 
-                      00595     ; save res_mult[0] in res_unit 
-01B6   1283 1303      00596     BANKSEL res_unit
-01B8   0847           00597     MOVF    res_mult, W
-01B9   07C1           00598     ADDWF   res_unit, F
-                      00599 
-                      00600     ; add res_mult[1] to res_tens
-01BA   0848           00601     MOVF    res_mult+1, W
-01BB   07C2           00602     ADDWF   res_tens, F
-                      00603     ; check if the number is largaer than 9
-01BC   0842           00604     MOVF    res_tens, W
-01BD   3C09           00605     SUBLW   0x09
-01BE   1C03           00606     BTFSS   STATUS, C
-01BF   2???           00607     CALL    handle_carry_tens
-                      00608 
-                      00609     ; find the multiplication of num1_tens by num2_unit
-01C0   1283 1303      00610     BANKSEL num1_tens
-01C2   0832           00611     MOVF    num1_tens, W
-01C3   00C5           00612     MOVWF   x
-01C4   0835           00613     MOVF    num2_unit, W
-01C5   00C6           00614     MOVWF   y
-01C6   2???           00615     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
-                      00616 
-01C7   1283 1303      00617     BANKSEL res_mult
-                      00618     ; add res_mult[0] to res_tens 
-01C9   0847           00619     MOVF    res_mult, W
-01CA   07C2           00620     ADDWF   res_tens, F
-                      00621     ; check if the number is largaer than 9
-01CB   0842           00622     MOVF    res_tens, W
-01CC   3C09           00623     SUBLW   0x09
-01CD   1C03           00624     BTFSS   STATUS, C
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 16
+01B6   0E07           00595     SWAPF   PORTC, W
+01B7   00D2           00596     MOVWF   aux_res_hundreds    ; hundreds in upper nibble  
+                      00597 
+01B8   300F           00598     MOVLW   0x0F
+01B9   05D1           00599     ANDWF   aux_res_tens, F     ; clear the upper nibble for tens
+01BA   300F           00600     MOVLW   0x0F
+01BB   05D2           00601     ANDWF   aux_res_hundreds, F ; clear the upper nibble for hundreds
+                      00602 
+                      00603     ;delay for 10ms to make sure the data is received
+01BC   300A           00604     MOVLW   D'10'
+01BD   2???           00605     CALL    xms
+                      00606 
+                      00607     ; get the least significant digit from the auxiliary CPU
+01BE   0807           00608     MOVF    PORTC, W
+01BF   00D0           00609     MOVWF   aux_res_unit
+                      00610 
+01C0   1683 1303      00611     BANKSEL TRISC
+01C2   3000           00612     MOVLW   0x00
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01C3   0087           00613     MOVWF   TRISC       ; portc is input
+                      00614 
+01C4   1283 1303      00615     BANKSEL PORTC
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 16
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-01CE   2???           00625     CALL    handle_carry_tens
-                      00626 
-                      00627     ; add res_mult[1] to res_hundreds
-01CF   0848           00628     MOVF    res_mult+1, W
-01D0   07C3           00629     ADDWF   res_hundreds, F
-                      00630     ; check if the number is largaer than 9
-01D1   0843           00631     MOVF    res_hundreds, W
-01D2   3C09           00632     SUBLW   0x09
-01D3   1C03           00633     BTFSS   STATUS, C
-01D4   2???           00634     CALL    handle_carry_hundreds
-                      00635 
-                      00636     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00637     ;print the result on the LCD
-01D5   1283 1303      00638     BANKSEL PORTD               ; Select bank 0
-01D7   14F4           00639     BSF    Select,RS    ; Select data mode
-01D8   0844           00640     MOVF   res_thousands, W
-01D9   3E30           00641     ADDLW  0x30
-01DA   2???           00642     CALL   send
-01DB   0843           00643     MOVF   res_hundreds, W
-01DC   3E30           00644     ADDLW  0x30
-01DD   2???           00645     CALL   send
-01DE   0842           00646     MOVF   res_tens, W
-01DF   3E30           00647     ADDLW  0x30
-01E0   2???           00648     CALL   send
-01E1   0841           00649     MOVF   res_unit, W
-01E2   3E30           00650     ADDLW  0x30
-01E3   2???           00651     CALL   send
-                      00652 
-                      00653 
-01E4   2???           00654     GOTO    backFromMult
-                      00655 
-                      00656     
-                      00657 ; handle the carry if res_tens is larger than 9
-01E5                  00658 handle_carry_tens:
-01E5   300A           00659     MOVLW   0x0A            
-01E6   02C2           00660     SUBWF   res_tens, F         ; subtract 10 from res_tens
-01E7   0AC3           00661     INCF    res_hundreds, F     ; increment res_hundreds
-01E8   0008           00662     RETURN  
-                      00663 
-                      00664 ; handle the carry if res_hundreds is larger than 9
-01E9                  00665 handle_carry_hundreds:
-01E9   300A           00666     MOVLW   0x0A
-01EA   02C3           00667     SUBWF   res_hundreds, F     ; subtract 10 from res_hundreds
-01EB   0FC4           00668     INCFSZ  res_thousands, F    ; increment res_thousands
-01EC   0008           00669     RETURN
-                      00670 
-                      00671 
-                      00672 
-                      00673 ; multiply value of x and y and store the result in res_mult
-01ED                  00674 multiplication:
-01ED   1283 1303      00675     BANKSEL res_mult
-01EF   01C7           00676     CLRF    res_mult
-01F0   01C8           00677     CLRF    res_mult+1
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 17
+01C6   30FF           00616     MOVLW   0xFF
+01C7   0087           00617     MOVWF   PORTC       ; clear the portc
+                      00618 
+01C8   2???           00619     GOTO    backFromGet
+                      00620 
+                      00621 
+                      00622 ; Calculate the final result
+01C9                  00623 calculateFinalResult:
+01C9   1283 1303      00624     BANKSEL PORTA
+                      00625 
+                      00626     ; add the unit digit to the result from the auxiliary CPU
+01CB   0850           00627     MOVF    aux_res_unit, W
+01CC   00C1           00628     MOVWF   res_unit
+                      00629 
+                      00630     ; add the tens digit to the result from the auxiliary CPU
+01CD   0851           00631     MOVF    aux_res_tens, W
+01CE   07C2           00632     ADDWF   res_tens, F    
+                      00633 
+                      00634     ; check if the number is largaer than 9
+01CF   0842           00635     MOVF    res_tens, W
+01D0   3C09           00636     SUBLW   0x09
+01D1   1C03           00637     BTFSS   STATUS, C
+01D2   2???           00638     CALL    handle_carry_tens
+                      00639 
+01D3   0852           00640     MOVF    aux_res_hundreds, W
+01D4   07C3           00641     ADDWF   res_hundreds, F
+                      00642     ; check if the number is largaer than 9
+01D5   0843           00643     MOVF    res_hundreds, W
+01D6   3C09           00644     SUBLW   0x09
+01D7   1C03           00645     BTFSS   STATUS, C
+01D8   2???           00646     CALL    handle_carry_hundreds
+                      00647 
+                      00648     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00649     ;print the result on the LCD
+01D9   1283 1303      00650     BANKSEL PORTD               ; Select bank 0
+01DB   14F4           00651     BSF    Select,RS    ; Select data mode
+01DC   0844           00652     MOVF   res_thousands, W
+01DD   3E30           00653     ADDLW  0x30
+01DE   2???           00654     CALL   send
+01DF   0843           00655     MOVF   res_hundreds, W
+01E0   3E30           00656     ADDLW  0x30
+01E1   2???           00657     CALL   send
+01E2   0842           00658     MOVF   res_tens, W
+01E3   3E30           00659     ADDLW  0x30
+01E4   2???           00660     CALL   send
+01E5   0841           00661     MOVF   res_unit, W
+01E6   3E30           00662     ADDLW  0x30
+01E7   2???           00663     CALL   send
+                      00664 
+01E8   2???           00665     GOTO    backFromFinal
+                      00666 
+                      00667 
+                      00668 ; Calculate the multiplication of the first number by the tenth digit of the second number
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 17
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00678 
-01F1   0846           00679     MOVF    y, W
-01F2   1903           00680     BTFSC   STATUS, Z   
-01F3   2???           00681     GOTO    mult_end    ; If y is zero, return
-                      00682          
-                      00683 
-01F4                  00684 mult_loop:
-01F4   0845           00685     MOVF    x, W       
-01F5   07C7           00686     ADDWF   res_mult, F     ; Add x to the result
-                      00687     
-                      00688     ; check if the number is largaer than 9
-01F6   0847           00689     MOVF   res_mult, W
-01F7   3C09           00690     SUBLW   0x09
-01F8   1C03           00691     BTFSS   STATUS, C
-01F9   2???           00692     GOTO    fix_overflow
-01FA   0BC6           00693     DECFSZ  y, F            ; decrement y
-01FB   2???           00694     GOTO    mult_loop       ; repeat the loop
-01FC   2???           00695     GOTO    mult_end
-                      00696 
-01FD                  00697 fix_overflow:
-01FD   1283 1303      00698     BANKSEL res_mult
-                      00699     ; if the number is larger than 9, subtract 10 from it and increment the next byte 
-                      00700     ; BSF     Select, RS
-                      00701     ; MOVLW   '#'
-                      00702     ; CALL    send
-01FF   300A           00703     MOVLW   0x0A                       
-0200   02C7           00704     SUBWF   res_mult, F
-0201   0AC8           00705     INCF    res_mult+1, F
-0202   0BC6           00706     DECFSZ  y, F            ; decrement y
-0203   2???           00707     GOTO    mult_loop       ; repeat the loop    
-0204   2???           00708     GOTO    mult_end 
-                      00709 
-0205                  00710 mult_end:
+01E9                  00669 calculateSecondMultiplication:
+01E9   1283 1303      00670     BANKSEL PORTA
+                      00671     ; clear output result's file registers
+01EB   01C1           00672     CLRF    res_unit
+01EC   01C2           00673     CLRF    res_tens
+01ED   01C3           00674     CLRF    res_hundreds
+01EE   01C4           00675     CLRF    res_thousands
+                      00676 
+                      00677 
+                      00678     ; find the multiplication of num1_unit by num2_tens
+01EF   1283 1303      00679     BANKSEL num1_unit
+01F1   0833           00680     MOVF    num1_unit, W
+01F2   00C5           00681     MOVWF   x
+01F3   0834           00682     MOVF    num2_tens, W
+01F4   00C6           00683     MOVWF   y
+01F5   2???           00684     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
+                      00685 
+01F6   1283 1303      00686     BANKSEL res_mult
+                      00687     ; add res_mult to res_tens
+01F8   0847           00688     MOVF    res_mult, W
+01F9   07C2           00689     ADDWF   res_tens, F
+                      00690     ; check if the number is largaer than 9
+01FA   0842           00691     MOVF    res_tens, W
+01FB   3C09           00692     SUBLW   0x09
+01FC   1C03           00693     BTFSS   STATUS, C
+01FD   2???           00694     CALL    handle_carry_tens
+                      00695 
+                      00696     ; add res_mult+1 to res_hundreds
+01FE   0848           00697     MOVF    res_mult+1, W
+01FF   07C3           00698     ADDWF   res_hundreds, F
+                      00699     ; check if the number is largaer than 9
+0200   0843           00700     MOVF    res_hundreds, W
+0201   3C09           00701     SUBLW   0x09
+0202   1C03           00702     BTFSS   STATUS, C
+0203   2???           00703     CALL    handle_carry_hundreds
+                      00704 
+                      00705     ; find the multiplication of num1_tens by num2_unit
+0204   0832           00706     MOVF    num1_tens, W
+0205   00C5           00707     MOVWF   x
+0206   0834           00708     MOVF    num2_tens, W
+0207   00C6           00709     MOVWF   y
+0208   2???           00710     CALL    multiplication  ; find x * y and store the result in res_mult (2 bytes)
                       00711 
-                      00712 
-0205   0008           00713     RETURN
-                      00714    
-                      00715 
+                      00712     ; add res_mult[0] to res_hundreds 
+0209   1283 1303      00713     BANKSEL res_mult
+020B   0847           00714     MOVF    res_mult, W
+020C   07C3           00715     ADDWF   res_hundreds, F
+                      00716     ; check if the number is largaer than 9
+020D   0843           00717     MOVF    res_hundreds, W
+020E   3C09           00718     SUBLW   0x09
+020F   1C03           00719     BTFSS   STATUS, C
+0210   2???           00720     CALL    handle_carry_hundreds
+                      00721 
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 18
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00722 
+                      00723     ; add res_mult[1] to res_thousands
+0211   0848           00724     MOVF    res_mult+1, W
+0212   07C4           00725     ADDWF   res_thousands, F
+                      00726     
+0213   2???           00727     GOTO    backFromMult
+                      00728 
+                      00729     
+                      00730 ; handle the carry if res_tens is larger than 9
+0214                  00731 handle_carry_tens:
+0214   300A           00732     MOVLW   0x0A            
+0215   02C2           00733     SUBWF   res_tens, F         ; subtract 10 from res_tens
+0216   0AC3           00734     INCF    res_hundreds, F     ; increment res_hundreds
+0217   0008           00735     RETURN  
+                      00736 
+                      00737 ; handle the carry if res_hundreds is larger than 9
+0218                  00738 handle_carry_hundreds:
+0218   300A           00739     MOVLW   0x0A
+0219   02C3           00740     SUBWF   res_hundreds, F     ; subtract 10 from res_hundreds
+021A   0FC4           00741     INCFSZ  res_thousands, F    ; increment res_thousands
+021B   0008           00742     RETURN
+                      00743 
+                      00744 
+                      00745 ; multiply value of x and y and store the result in res_mult
+021C                  00746 multiplication:
+021C   1283 1303      00747     BANKSEL res_mult
+021E   01C7           00748     CLRF    res_mult
+021F   01C8           00749     CLRF    res_mult+1
+                      00750 
+0220   0846           00751     MOVF    y, W
+0221   1903           00752     BTFSC   STATUS, Z   
+0222   2???           00753     GOTO    mult_end    ; If y is zero, return
+                      00754          
+                      00755 ; add x to res_mult y times
+0223                  00756 mult_loop:
+0223   0845           00757     MOVF    x, W       
+0224   07C7           00758     ADDWF   res_mult, F     ; Add x to the result
+                      00759     
+                      00760     ; check if the number is largaer than 9
+0225   0847           00761     MOVF   res_mult, W
+0226   3C09           00762     SUBLW   0x09
+0227   1C03           00763     BTFSS   STATUS, C
+0228   2???           00764     GOTO    fix_overflow
+0229   0BC6           00765     DECFSZ  y, F            ; decrement y
+022A   2???           00766     GOTO    mult_loop       ; repeat the loop
+022B   2???           00767     GOTO    mult_end
+                      00768 
+022C                  00769 fix_overflow:
+022C   1283 1303      00770     BANKSEL res_mult
+                      00771     ; if the number is larger than 9, subtract 10 from it and increment the next byte 
+022E   300A           00772     MOVLW   0x0A                       
+022F   02C7           00773     SUBWF   res_mult, F
+0230   0AC8           00774     INCF    res_mult+1, F
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 19
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0231   0BC6           00775     DECFSZ  y, F            ; decrement y
+0232   2???           00776     GOTO    mult_loop       ; repeat the loop    
+0233   2???           00777     GOTO    mult_end 
+                      00778 
+0234                  00779 mult_end:
+0234   0008           00780     RETURN
+                      00781    
 Warning[205]: Found directive in column 1. (END)
-3731                  00716 END
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 18
+3731                  00782 END
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 20
 
 
 SYMBOL TABLE
@@ -1047,7 +1134,7 @@ CHS1                              00000004
 CHS2                              00000005
 CIS                               00000003
 CKE                               00000006
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 19
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 21
 
 
 SYMBOL TABLE
@@ -1106,7 +1193,7 @@ INTEDG                            00000006
 INTF                              00000001
 IRP                               00000007
 NOT_A                             00000005
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 20
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 22
 
 
 SYMBOL TABLE
@@ -1165,7 +1252,7 @@ RA3                               00000003
 RA4                               00000004
 RA5                               00000005
 RB0                               00000000
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 21
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 23
 
 
 SYMBOL TABLE
@@ -1224,7 +1311,7 @@ SPBRG                             00000099
 SPEN                              00000007
 SREN                              00000005
 SSPADD                            00000093
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 22
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 24
 
 
 SYMBOL TABLE
@@ -1283,7 +1370,7 @@ TRISA3                            00000003
 TRISA4                            00000004
 TRISA5                            00000005
 TRISB                             00000086
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 23
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 25
 
 
 SYMBOL TABLE
@@ -1342,7 +1429,7 @@ Z                                 00000002
 _BODEN_OFF                        00003FBF
 _BODEN_ON                         00003FFF
 _BOREN_OFF                        00003FBF
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 24
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 26
 
 
 SYMBOL TABLE
@@ -1384,69 +1471,78 @@ _WRT_OFF                          00003FFF
 _XT_OSC                           00003FFD
 __16F877A                         00000001
 __DEBUG                           1
-backFromMult                      00000060
+aux_res_hundreds                  00000052
+aux_res_tens                      00000051
+aux_res_unit                      00000050
+backFromFinal                     00000063
+backFromGet                       00000062
+backFromMult                      00000061
+backFromSend                      00000060
 buttonInterrupt                   00000008
-calculateSecondMultiplication     00000185
-clearDisplay                      000000DC
+calculateFinalResult              000001C9
+calculateSecondMultiplication     000001E9
+clearDisplay                      000000E7
 count                             00000031
 current_digit                     00000030
-fix_overflow                      000001FD
-handle_carry_hundreds             000001E9
-handle_carry_tens                 000001E5
-incrementCurrentDigit             0000017D
-inid                              0000009F
-init                              000000BA
-initInterrupts                    000000E4
-loop                              000000D0
-loop1                             00000075
-loopX                             0000007A
-loopx                             00000088
-MPASM  5.43                        MASTER.ASM   2-14-2024  13:14:19         PAGE 25
+fix_overflow                      0000022C
+getDataFromAuxiliary              000001A3
+handle_carry_hundreds             00000218
+handle_carry_tens                 00000214
+MPASM  5.43                        MASTER.ASM   2-15-2024  11:28:18         PAGE 27
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
-mult_end                          00000205
-mult_loop                         000001F4
-multiplication                    000001ED
+incrementCurrentDigit             00000188
+inid                              000000A2
+init                              000000BD
+initInterrupts                    000000EF
+loop                              000000D6
+loop1                             00000078
+loopX                             0000007D
+loopx                             0000008B
+mult_end                          00000234
+mult_loop                         00000223
+multiplication                    0000021C
 num1_tens                         00000032
 num1_unit                         00000033
 num2_tens                         00000034
 num2_unit                         00000035
-onems                             00000073
-onesecond                         0000007E
+onems                             00000076
+onesecond                         00000081
 position                          00000037
-printNumber1                      000000F4
-printNumber2                      00000118
-printResult                       00000124
-printWelcome                      0000013E
-pulseE                            0000008C
+printNumber1                      000000FF
+printNumber2                      00000123
+printResult                       0000012F
+printWelcome                      00000149
+pulseE                            0000008F
 res_hundreds                      00000043
 res_mult                          00000047
 res_tens                          00000042
 res_thousands                     00000044
 res_unit                          00000041
-resetCurrentDigit                 00000061
-resetSystem                       000000D1
-resetTimer0                       000000EE
+resetCurrentDigit                 00000064
+resetSystem                       000000D7
+resetTimer0                       000000F9
 saveNum1Tens                      0000002E
 saveNum1Unit                      00000035
 saveNum2Tens                      00000043
 saveNum2Unit                      0000004A
-send                              00000091
-skip                              0000006B
-start                             000000C6
+send                              00000094
+sendDataToAuxiliary               00000190
+skip                              0000006E
+start                             000000CC
 state                             00000038
 timerCounter                      00000036
 timerInterrupt                    0000001A
 x                                 00000045
-xms                               00000079
-xseconds                          00000087
+xms                               0000007C
+xseconds                          0000008A
 y                                 00000046
 
 Errors   :     0
-Warnings :    19 reported,     0 suppressed
-Messages :     8 reported,     0 suppressed
+Warnings :    22 reported,     0 suppressed
+Messages :    14 reported,     0 suppressed
 
 
