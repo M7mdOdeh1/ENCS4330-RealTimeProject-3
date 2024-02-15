@@ -134,7 +134,6 @@ backFromMultiply:
     CALL    send
     ; test
 
-  
     GOTO    start
 
 
@@ -145,21 +144,27 @@ sendResult:
     MOVWF   TRISC    ; portc is output
     
     BANKSEL PORTC
-    SWAPF   result+2, W     ;swap the two nibbles of hundreds ans save it in Welcome
+    SWAPF   result+2, W     ;swap the two nibbles of hundreds ans save it in W
     IORWF   result+1, W     ;put the tens in lower nibble of W
+    
 
     MOVWF   PORTC   ; send the two most significant bits of the result in one shot
 
     ; delay for 15ms
-    MOVLW   0x0F
+    MOVLW   0x0A
     CALL    xms
 
+    BANKSEL PORTC    
     MOVF    result, W
     MOVWF   PORTC       ; send the least significant bit
+  
+
 
     ; delay for 32ms
     MOVLW   0x20
     CALL    xms
+
+    BANKSEL PORTC
 
     GOTO    start
 

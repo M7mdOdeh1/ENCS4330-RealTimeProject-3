@@ -604,6 +604,7 @@ getDataFromAuxiliary:
     MOVLW   D'10'
     CALL    xms
 
+    BANKSEL PORTC
     ; get the least significant digit from the auxiliary CPU
     MOVF    PORTC, W
     MOVWF   aux_res_unit

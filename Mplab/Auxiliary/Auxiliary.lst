@@ -1,4 +1,4 @@
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  1
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ Warning[207]: Found label after column 1. (y)
                       00034 
                       00035 ; Interrupt vector location ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00036     ORG 0x04            ; Interrupt vector location
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  2
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -116,7 +116,7 @@ Message[305]: Using default destination of 1 (file).
                       00040 
                       00041 ;--------------------------------------------------------------
                       00042 ;       Delay 1 seconds (1000ms) 
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  3
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -175,7 +175,7 @@ Message[305]: Using default destination of 1 (file).
 0031   18F4           00091         BTFSC   Select,RS       ; Test RS bit
 0032   1488           00092         BSF     PORTD,RS        ; and set for data
 0033   2???           00093         CALL    pulseE          ; and clock display register
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  4
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -234,7 +234,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0059   10F4           00055     BCF     Select, RS       ; Select command mode
 005A   3001           00056     MOVLW    0x01           ; clear display
 005B   2???           00057     CALL    send            ; and send code
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  5
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -293,7 +293,7 @@ Message[305]: Using default destination of 1 (file).
                       00103 
 007D   14F4           00104     BSF     Select, RS       ; Select data mode
 007E   0827           00105     MOVF    num1_tens, W
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  6
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -330,147 +330,158 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0096   2???           00134     CALL    send
                       00135     ; test
                       00136 
-                      00137   
-0097   2???           00138     GOTO    start
+0097   2???           00137     GOTO    start
+                      00138 
                       00139 
-                      00140 
-                      00141 ; Send the 3-digit result to PORTC
-0098                  00142 sendResult:
-0098   1683 1303      00143     BANKSEL TRISC
-009A   3000           00144     MOVLW   0x00
+                      00140 ; Send the 3-digit result to PORTC
+0098                  00141 sendResult:
+0098   1683 1303      00142     BANKSEL TRISC
+009A   3000           00143     MOVLW   0x00
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-009B   0087           00145     MOVWF   TRISC    ; portc is output
-                      00146     
-009C   1283 1303      00147     BANKSEL PORTC
-009E   0E32           00148     SWAPF   result+2, W     ;swap the two nibbles of hundreds ans save it in Welcome
-009F   0431           00149     IORWF   result+1, W     ;put the tens in lower nibble of W
+009B   0087           00144     MOVWF   TRISC    ; portc is output
+                      00145     
+009C   1283 1303      00146     BANKSEL PORTC
+009E   0E32           00147     SWAPF   result+2, W     ;swap the two nibbles of hundreds ans save it in W
+009F   0431           00148     IORWF   result+1, W     ;put the tens in lower nibble of W
+                      00149     
                       00150 
 00A0   0087           00151     MOVWF   PORTC   ; send the two most significant bits of the result in one shot
                       00152 
                       00153     ; delay for 15ms
-00A1   300F           00154     MOVLW   0x0F
+00A1   300A           00154     MOVLW   0x0A
 00A2   2???           00155     CALL    xms
                       00156 
-00A3   0830           00157     MOVF    result, W
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  7
+00A3   1283 1303      00157     BANKSEL PORTC    
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-00A4   0087           00158     MOVWF   PORTC       ; send the least significant bit
-                      00159 
-                      00160     ; delay for 32ms
-00A5   3020           00161     MOVLW   0x20
-00A6   2???           00162     CALL    xms
-                      00163 
-00A7   2???           00164     GOTO    start
-                      00165 
+00A5   0830           00158     MOVF    result, W
+00A6   0087           00159     MOVWF   PORTC       ; send the least significant bit
+                      00160   
+                      00161 
+                      00162 
+                      00163     ; delay for 32ms
+00A7   3020           00164     MOVLW   0x20
+00A8   2???           00165     CALL    xms
                       00166 
-                      00167 ; find the multiplication of the first number and the unit digit of the second number
-00A8                  00168 firstMultiplication:
-00A8   01B0           00169     CLRF    result
-00A9   01B1           00170     CLRF    result+1
-00AA   01B2           00171     CLRF    result+2
-                      00172 
-00AB   1283 1303      00173     BANKSEL num2_unit
-00AD   0828           00174     MOVF    num2_unit, W
-00AE   00B6           00175     MOVWF   y
-00AF   0826           00176     MOVF    num1_unit, W
-00B0   00B5           00177     MOVWF   x
-00B1   2???           00178     CALL    multiplication  ; multiply num2_unit and num1_unit
-                      00179 
-                      00180     ; save the result in res_mult and res_mult+1
-00B2   1283 1303      00181     BANKSEL res_mult
-00B4   0833           00182     MOVF    res_mult, W
-00B5   00B0           00183     MOVWF   result
-00B6   0834           00184     MOVF    res_mult+1, W
-00B7   00B1           00185     MOVWF   result+1
-                      00186 
-00B8   1283 1303      00187     BANKSEL num1_tens
-00BA   0828           00188     MOVF    num2_unit, W
-00BB   00B5           00189     MOVWF   x
-00BC   0827           00190     MOVF    num1_tens, W
-00BD   00B6           00191     MOVWF   y
-00BE   2???           00192     CALL    multiplication  ; multiply num2_unit and num1_tens
-                      00193 
-                      00194     ; add the result to the tens place of the result
-00BF   1283 1303      00195     BANKSEL res_mult
-00C1   0833           00196     MOVF    res_mult, W
-00C2   07B1           00197     ADDWF   result+1, F      ; add the result[0] to the tens place of the result
-00C3   0834           00198     MOVF    res_mult+1, W
-00C4   07B2           00199     ADDWF   result+2, F      ; add the result[1] to the hundreds place of the result
-                      00200 
-00C5   0831           00201     MOVF    result+1, W
-00C6   3C09           00202     SUBLW   0x09
-00C7   1C03           00203     BTFSS   STATUS, C           ; check if the tens is larger than 9
-00C8   2???           00204     GOTO    handle_carry_tens   ; if tens is larger than 9, handle the carry
-00C9   2???           00205     GOTO    backFromMultiply    ; if tens is not larger than 9, return
-                      00206 
-                      00207 
-                      00208 
-                      00209 ; handle the carry if res_tens is larger than 9
-00CA                  00210 handle_carry_tens:
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  8
+00A9   1283 1303      00167     BANKSEL PORTC
+                      00168 
+00AB   2???           00169     GOTO    start
+                      00170 
+                      00171 
+                      00172 ; find the multiplication of the first number and the unit digit of the second number
+00AC                  00173 firstMultiplication:
+00AC   01B0           00174     CLRF    result
+00AD   01B1           00175     CLRF    result+1
+00AE   01B2           00176     CLRF    result+2
+                      00177 
+00AF   1283 1303      00178     BANKSEL num2_unit
+00B1   0828           00179     MOVF    num2_unit, W
+00B2   00B6           00180     MOVWF   y
+00B3   0826           00181     MOVF    num1_unit, W
+00B4   00B5           00182     MOVWF   x
+00B5   2???           00183     CALL    multiplication  ; multiply num2_unit and num1_unit
+                      00184 
+                      00185     ; save the result in res_mult and res_mult+1
+00B6   1283 1303      00186     BANKSEL res_mult
+00B8   0833           00187     MOVF    res_mult, W
+00B9   00B0           00188     MOVWF   result
+00BA   0834           00189     MOVF    res_mult+1, W
+00BB   00B1           00190     MOVWF   result+1
+                      00191 
+00BC   1283 1303      00192     BANKSEL num1_tens
+00BE   0828           00193     MOVF    num2_unit, W
+00BF   00B5           00194     MOVWF   x
+00C0   0827           00195     MOVF    num1_tens, W
+00C1   00B6           00196     MOVWF   y
+00C2   2???           00197     CALL    multiplication  ; multiply num2_unit and num1_tens
+                      00198 
+                      00199     ; add the result to the tens place of the result
+00C3   1283 1303      00200     BANKSEL res_mult
+00C5   0833           00201     MOVF    res_mult, W
+00C6   07B1           00202     ADDWF   result+1, F      ; add the result[0] to the tens place of the result
+00C7   0834           00203     MOVF    res_mult+1, W
+00C8   07B2           00204     ADDWF   result+2, F      ; add the result[1] to the hundreds place of the result
+                      00205 
+00C9   0831           00206     MOVF    result+1, W
+00CA   3C09           00207     SUBLW   0x09
+00CB   1C03           00208     BTFSS   STATUS, C           ; check if the tens is larger than 9
+00CC   2???           00209     GOTO    handle_carry_tens   ; if tens is larger than 9, handle the carry
+00CD   2???           00210     GOTO    backFromMultiply    ; if tens is not larger than 9, return
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  8
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-00CA   1283 1303      00211     BANKSEL result+1
-00CC   300A           00212     MOVLW   0x0A            
-00CD   02B1           00213     SUBWF   result+1, F         ; subtract 10 from res_tens
-00CE   0AB2           00214     INCF    result+2, F         ; increment res_hundreds
-00CF   2???           00215     GOTO    backFromMultiply    ; return
-                      00216     
-                      00217 
-                      00218 ; multiply value of x and y and store the result in res_mult
-00D0                  00219 multiplication:
-00D0   1283 1303      00220     BANKSEL res_mult
-00D2   01B3           00221     CLRF    res_mult
-00D3   01B4           00222     CLRF    res_mult+1
-                      00223 
-00D4   0836           00224     MOVF    y, W
-00D5   1903           00225     BTFSC   STATUS, Z   
-00D6   2???           00226     GOTO    mult_end    ; If y is zero, return
-                      00227          
-00D7                  00228 mult_loop:
-00D7   0835           00229     MOVF    x, W       
-00D8   07B3           00230     ADDWF   res_mult, F     ; Add x to the result
-                      00231     
-                      00232     ; check if the number is largaer than 9
-00D9   0833           00233     MOVF   res_mult, W
-00DA   3C09           00234     SUBLW   0x09
-00DB   1C03           00235     BTFSS   STATUS, C
-00DC   2???           00236     GOTO    fix_overflow
-00DD   0BB6           00237     DECFSZ  y, F            ; decrement y
-00DE   2???           00238     GOTO    mult_loop       ; repeat the loop
-00DF   2???           00239     GOTO    mult_end
-                      00240 
-00E0                  00241 fix_overflow:
-00E0   1283 1303      00242     BANKSEL res_mult
-                      00243     ; if the number is larger than 9, subtract 10 from it and increment the next byte 
-00E2   300A           00244     MOVLW   0x0A                       
-00E3   02B3           00245     SUBWF   res_mult, F
-00E4   0AB4           00246     INCF    res_mult+1, F
-00E5   0BB6           00247     DECFSZ  y, F            ; decrement y
-00E6   2???           00248     GOTO    mult_loop       ; repeat the loop    
-00E7   2???           00249     GOTO    mult_end 
-                      00250 
-00E8                  00251 mult_end:
-                      00252     ; BANKSEL res_mult
-                      00253     ; MOVF    res_mult+1, W
-                      00254     ; CALL    send
-                      00255     ; MOVF    res_mult, W
-                      00256     ; CALL    send
-                      00257    
-                      00258 
-00E8   0008           00259     RETURN
-                      00260 
-                      00261 
+                      00211 
+                      00212 
+                      00213 
+                      00214 ; handle the carry if res_tens is larger than 9
+00CE                  00215 handle_carry_tens:
+00CE   1283 1303      00216     BANKSEL result+1
+00D0   300A           00217     MOVLW   0x0A            
+00D1   02B1           00218     SUBWF   result+1, F         ; subtract 10 from res_tens
+00D2   0AB2           00219     INCF    result+2, F         ; increment res_hundreds
+00D3   2???           00220     GOTO    backFromMultiply    ; return
+                      00221     
+                      00222 
+                      00223 ; multiply value of x and y and store the result in res_mult
+00D4                  00224 multiplication:
+00D4   1283 1303      00225     BANKSEL res_mult
+00D6   01B3           00226     CLRF    res_mult
+00D7   01B4           00227     CLRF    res_mult+1
+                      00228 
+00D8   0836           00229     MOVF    y, W
+00D9   1903           00230     BTFSC   STATUS, Z   
+00DA   2???           00231     GOTO    mult_end    ; If y is zero, return
+                      00232          
+00DB                  00233 mult_loop:
+00DB   0835           00234     MOVF    x, W       
+00DC   07B3           00235     ADDWF   res_mult, F     ; Add x to the result
+                      00236     
+                      00237     ; check if the number is largaer than 9
+00DD   0833           00238     MOVF   res_mult, W
+00DE   3C09           00239     SUBLW   0x09
+00DF   1C03           00240     BTFSS   STATUS, C
+00E0   2???           00241     GOTO    fix_overflow
+00E1   0BB6           00242     DECFSZ  y, F            ; decrement y
+00E2   2???           00243     GOTO    mult_loop       ; repeat the loop
+00E3   2???           00244     GOTO    mult_end
+                      00245 
+00E4                  00246 fix_overflow:
+00E4   1283 1303      00247     BANKSEL res_mult
+                      00248     ; if the number is larger than 9, subtract 10 from it and increment the next byte 
+00E6   300A           00249     MOVLW   0x0A                       
+00E7   02B3           00250     SUBWF   res_mult, F
+00E8   0AB4           00251     INCF    res_mult+1, F
+00E9   0BB6           00252     DECFSZ  y, F            ; decrement y
+00EA   2???           00253     GOTO    mult_loop       ; repeat the loop    
+00EB   2???           00254     GOTO    mult_end 
+                      00255 
+00EC                  00256 mult_end:
+                      00257     ; BANKSEL res_mult
+                      00258     ; MOVF    res_mult+1, W
+                      00259     ; CALL    send
+                      00260     ; MOVF    res_mult, W
+                      00261     ; CALL    send
+                      00262    
+                      00263 
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00EC   0008           00264     RETURN
+                      00265 
+                      00266 
 Warning[205]: Found directive in column 1. (END)
-3731                  00262 END
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE  9
+3731                  00267 END
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE 10
 
 
 SYMBOL TABLE
@@ -529,7 +540,7 @@ CHS1                              00000004
 CHS2                              00000005
 CIS                               00000003
 CKE                               00000006
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 10
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE 11
 
 
 SYMBOL TABLE
@@ -588,7 +599,7 @@ INTEDG                            00000006
 INTF                              00000001
 IRP                               00000007
 ISR                               00000006
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 11
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE 12
 
 
 SYMBOL TABLE
@@ -647,7 +658,7 @@ RA2                               00000002
 RA3                               00000003
 RA4                               00000004
 RA5                               00000005
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 12
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE 13
 
 
 SYMBOL TABLE
@@ -706,7 +717,7 @@ SEN                               00000000
 SMP                               00000007
 SPBRG                             00000099
 SPEN                              00000007
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 13
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE 14
 
 
 SYMBOL TABLE
@@ -765,7 +776,7 @@ TRISA1                            00000001
 TRISA2                            00000002
 TRISA3                            00000003
 TRISA4                            00000004
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 14
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE 15
 
 
 SYMBOL TABLE
@@ -824,7 +835,7 @@ WREN                              00000002
 WRERR                             00000003
 Z                                 00000002
 _BODEN_OFF                        00003FBF
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 15
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE 16
 
 
 SYMBOL TABLE
@@ -869,21 +880,21 @@ _XT_OSC                           00003FFD
 __16F877A                         00000001
 __DEBUG                           1
 backFromMultiply                  0000008B
-firstMultiplication               000000A8
-fix_overflow                      000000E0
-handle_carry_tens                 000000CA
+firstMultiplication               000000AC
+fix_overflow                      000000E4
+handle_carry_tens                 000000CE
 inid                              00000035
 init                              00000050
 loop1                             0000000B
 loop11                            0000006C
 loopX                             00000010
 loopx                             0000001E
-mult_end                          000000E8
-mult_loop                         000000D7
-multiplication                    000000D0
+mult_end                          000000EC
+mult_loop                         000000DB
+multiplication                    000000D4
 num1_tens                         00000027
 num1_unit                         00000026
-MPASM  5.43                     AUXILIARY.ASM   2-15-2024  11:09:52         PAGE 16
+MPASM  5.43                     AUXILIARY.ASM   2-15-2024  14:11:49         PAGE 17
 
 
 SYMBOL TABLE
