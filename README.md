@@ -18,7 +18,7 @@ This project is a simple calculator designed to perform multiplication operation
 - Proteus for schematic design and simulation.
 
 ## Setup and Configuration
-- Communication between the master CPU and co-processor through PortC.
+- Communication between the master CPU and co-processor through PortC using Parallel communication.
 - Use of PortB.0 for the push button and PortD for LCD connection.
 
 ## Code Implementation
