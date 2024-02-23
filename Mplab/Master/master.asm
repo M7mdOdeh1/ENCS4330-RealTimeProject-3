@@ -600,8 +600,8 @@ getDataFromAuxiliary:
     MOVLW   0x0F
     ANDWF   aux_res_hundreds, F ; clear the upper nibble for hundreds
 
-    ;delay for 10ms to make sure the data is received
-    MOVLW   D'10'
+    ;delay for 11ms to make sure the data is received
+    MOVLW   D'11'
     CALL    xms
 
     BANKSEL PORTC

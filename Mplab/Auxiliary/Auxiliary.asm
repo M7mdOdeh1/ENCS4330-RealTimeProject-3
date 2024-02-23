@@ -125,7 +125,7 @@ sendResult:
 
     MOVWF   PORTC   ; send the two most significant bits of the result in one shot
 
-    ; delay for 15ms
+    ; delay for 10ms
     MOVLW   0x0A
     CALL    xms
 
@@ -133,7 +133,6 @@ sendResult:
     MOVF    result, W
     MOVWF   PORTC       ; send the least significant bit
   
-
 
     ; delay for 32ms
     MOVLW   0x20

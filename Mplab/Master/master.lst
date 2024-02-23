@@ -1,4 +1,4 @@
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  1
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ Warning[207]: Found label after column 1. (num1_tens)
 Warning[207]: Found label after column 1. (num1_unit)
   00000033            00037     num1_unit       EQU 33        ; Unit digit of the first number
 Warning[207]: Found label after column 1. (num2_tens)
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  2
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -116,7 +116,7 @@ Warning[207]: Found label after column 1. (aux_res_hundreds)
 000A   1A38           00072     BTFSC   state, 4
 000B   2???           00073     GOTO    resetSystem
                       00074 
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  3
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -175,7 +175,7 @@ Message[305]: Using default destination of 1 (file).
                       00124 
                       00125 ;--------------------------------------------------------------------------------------------
                       00126 
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  4
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -234,7 +234,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 004E   3010           00177     MOVLW    0x10
 004F   00B8           00178     MOVWF    state          ; change the state to 16 (finished entering the second number)
                       00179 
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  5
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -293,7 +293,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0070   178B           00230     BSF     INTCON, GIE     ; enable global interrupt
 0071   110B           00231     BCF     INTCON, T0IF    ; Clear TMR0 overflow flag
 0072   1283 1303      00232     BANKSEL TMR0        
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  6
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -352,7 +352,7 @@ Message[305]: Using default destination of 1 (file).
 0080   0008           00039         RETURN                  ; and finish
                       00040 
                       00041 ;--------------------------------------------------------------
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  7
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -411,7 +411,7 @@ Message[305]: Using default destination of 1 (file).
 009D   0088           00090         MOVWF   PORTD           ; Output low nybble
 009E   18F4           00091         BTFSC   Select,RS       ; Test RS bit
 009F   1488           00092         BSF     PORTD,RS        ; and set for data
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  8
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  8
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -470,7 +470,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 00C1   0187           00249     CLRF        TRISC       ; portc is output
                       00250 
                       00251 
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE  9
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE  9
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -529,7 +529,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 00DA   1283 1303      00301     BANKSEL PORTD               ; Select bank 0
 00DC   30FF           00302     MOVLW    0xFF
 00DD   0087           00303     MOVWF    PORTC
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 10
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 10
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -588,7 +588,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00353 ; Write "Number 1" in the first line and make the cursor blinking on the second line
 00FF                  00354 printNumber1:
 00FF   1283 1303      00355     BANKSEL PORTD               ; Select bank 0
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 11
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 11
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -647,7 +647,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0125   10F4           00406     BCF    Select,RS    ; Select command mode
 0126   3087           00407     MOVLW       0x87        ;position the cursor to 8th position in the first line
 0127   2???           00408     CALL        send        ; and send code
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 12
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 12
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -706,7 +706,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 014B   2???           00459     CALL    send            ; and send code
 014C   3080           00460     MOVLW       0x80        ; position to home cursor
 014D   2???           00461         CALL    send        ; and send code 
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 13
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 13
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -765,7 +765,7 @@ Warning[202]: Argument out of range.  Least significant bits used.
 0178   2???           00511     CALL        send
 0179   3063           00512     MOVLW       'c'
 017A   2???           00513     CALL        send
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 14
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 14
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -824,7 +824,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 019E   300A           00563     MOVLW   D'10'
 019F   2???           00564     CALL    xms         ; delay for 10ms to make sure the data is sent
                       00565 
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 15
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 15
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -869,8 +869,8 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 01BA   300F           00600     MOVLW   0x0F
 01BB   05D2           00601     ANDWF   aux_res_hundreds, F ; clear the upper nibble for hundreds
                       00602 
-                      00603     ;delay for 10ms to make sure the data is received
-01BC   300A           00604     MOVLW   D'10'
+                      00603     ;delay for 11ms to make sure the data is received
+01BC   300B           00604     MOVLW   D'11'
 01BD   2???           00605     CALL    xms
                       00606 
 01BE   1283 1303      00607     BANKSEL PORTC
@@ -883,7 +883,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
 01C5   0087           00614     MOVWF   TRISC       ; portc is input
                       00615 
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 16
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 16
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -942,7 +942,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 01EA   2???           00666     GOTO    backFromFinal
                       00667 
                       00668 
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 17
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 17
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1001,7 +1001,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0210   3C09           00719     SUBLW   0x09
 0211   1C03           00720     BTFSS   STATUS, C
 0212   2???           00721     CALL    handle_carry_hundreds
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 18
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 18
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1060,7 +1060,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00772     ; if the number is larger than 9, subtract 10 from it and increment the next byte 
 0230   300A           00773     MOVLW   0x0A                       
 0231   02C7           00774     SUBWF   res_mult, F
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 19
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 19
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1076,7 +1076,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00782    
 Warning[205]: Found directive in column 1. (END)
 3731                  00783 END
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 20
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 20
 
 
 SYMBOL TABLE
@@ -1135,7 +1135,7 @@ CHS1                              00000004
 CHS2                              00000005
 CIS                               00000003
 CKE                               00000006
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 21
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 21
 
 
 SYMBOL TABLE
@@ -1194,7 +1194,7 @@ INTEDG                            00000006
 INTF                              00000001
 IRP                               00000007
 NOT_A                             00000005
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 22
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 22
 
 
 SYMBOL TABLE
@@ -1253,7 +1253,7 @@ RA3                               00000003
 RA4                               00000004
 RA5                               00000005
 RB0                               00000000
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 23
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 23
 
 
 SYMBOL TABLE
@@ -1312,7 +1312,7 @@ SPBRG                             00000099
 SPEN                              00000007
 SREN                              00000005
 SSPADD                            00000093
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 24
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 24
 
 
 SYMBOL TABLE
@@ -1371,7 +1371,7 @@ TRISA3                            00000003
 TRISA4                            00000004
 TRISA5                            00000005
 TRISB                             00000086
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 25
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 25
 
 
 SYMBOL TABLE
@@ -1430,7 +1430,7 @@ Z                                 00000002
 _BODEN_OFF                        00003FBF
 _BODEN_ON                         00003FFF
 _BOREN_OFF                        00003FBF
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 26
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 26
 
 
 SYMBOL TABLE
@@ -1489,7 +1489,7 @@ fix_overflow                      0000022E
 getDataFromAuxiliary              000001A3
 handle_carry_hundreds             0000021A
 handle_carry_tens                 00000216
-MPASM  5.43                        MASTER.ASM   2-15-2024  14:11:55         PAGE 27
+MPASM  5.43                        MASTER.ASM   2-16-2024  17:38:11         PAGE 27
 
 
 SYMBOL TABLE
